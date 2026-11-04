@@ -13,6 +13,7 @@ import {
   Zap,
   Building2,
   Check,
+  ChevronDown,
 } from 'lucide-react';
 
 interface LoginModalProps {
@@ -165,57 +166,34 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
               </p>
             </div>
 
-            {/* Chọn tài khoản nhanh */}
-            <div>
-              <label className="block text-xs font-bold text-slate-800 mb-2">
+            {/* Chọn tài khoản nhanh dạng Select */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-800">
                 Chọn tài khoản nhanh
               </label>
-              <div className="space-y-2">
-                {farmProfiles.map((p) => {
-                  const isActive = selectedUser === p.id;
-                  return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => handleQuickSelect(p.id)}
-                      className={`w-full flex items-center justify-between p-2.5 rounded-2xl border text-left transition-all duration-200 ${
-                        isActive
-                          ? 'border-2 border-[#058a50] bg-[#f0fdf4] shadow-xs'
-                          : 'border border-slate-200 bg-white hover:bg-slate-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shadow-xs ${
-                            isActive ? 'bg-[#058a50] text-white' : 'bg-slate-200 text-slate-600'
-                          }`}
-                        >
-                          {p.initial}
-                        </div>
-                        <div>
-                          <div className="font-extrabold text-slate-900 text-xs leading-none">
-                            {p.name}
-                          </div>
-                          <div
-                            className={`text-[10px] mt-0.5 ${
-                              isActive ? 'text-[#058a50] font-semibold' : 'text-slate-400 font-medium'
-                            }`}
-                          >
-                            {p.role}
-                          </div>
-                        </div>
-                      </div>
-
-                      {isActive ? (
-                        <div className="w-5 h-5 rounded-full bg-[#058a50] text-white flex items-center justify-center text-xs font-bold">
-                          ✓
-                        </div>
-                      ) : (
-                        <div className="w-5 h-5 rounded-full border border-slate-300" />
-                      )}
-                    </button>
-                  );
-                })}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#058a50]">
+                  <UserIcon className="w-4 h-4 stroke-[2.2]" />
+                </div>
+                <select
+                  value={selectedUser}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSelectedUser(val);
+                    setUsername(val);
+                    setPassword('123456');
+                  }}
+                  className="w-full pl-10 pr-10 py-2.5 bg-emerald-50/60 hover:bg-emerald-50/90 border-2 border-emerald-200/90 focus:border-[#058a50] focus:ring-2 focus:ring-[#058a50]/20 rounded-2xl text-xs sm:text-sm font-bold text-slate-900 transition appearance-none cursor-pointer"
+                >
+                  {farmProfiles.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} — {p.role} ({p.id})
+                    </option>
+                  ))}
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-500">
+                  <ChevronDown className="w-4 h-4 stroke-[2.5]" />
+                </div>
               </div>
             </div>
 
@@ -469,52 +447,34 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
                 </div>
               </div>
 
-              {/* Chọn tài khoản nhanh */}
-              <div className="space-y-2">
+              {/* Chọn tài khoản nhanh dạng Select */}
+              <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-slate-800">
                   Chọn tài khoản nhanh
                 </label>
-                <div className="grid grid-cols-3 gap-2.5">
-                  {farmProfiles.map((p) => {
-                    const isActive = selectedUser === p.id;
-                    return (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => handleQuickSelect(p.id)}
-                        className={`relative p-3 rounded-2xl border text-left transition-all duration-200 flex flex-row items-start space-x-2.5 ${
-                          isActive
-                            ? 'border-2 border-[#058a50] bg-[#f0fdf4] shadow-sm'
-                            : 'border border-slate-200 bg-white hover:border-emerald-300 hover:bg-slate-50/60'
-                        }`}
-                      >
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            isActive
-                              ? 'bg-[#058a50]/15 text-[#058a50]'
-                              : 'bg-slate-100 text-slate-500'
-                          }`}
-                        >
-                          <UserIcon className="w-4 h-4 stroke-[2.2]" />
-                        </div>
-
-                        <div className="min-w-0 flex-1 text-left">
-                          <div className="font-extrabold text-slate-900 text-xs leading-tight truncate">
-                            {p.name}
-                          </div>
-                          <div className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
-                            {p.role}
-                          </div>
-                        </div>
-
-                        {isActive && (
-                          <div className="w-4 h-4 rounded-full bg-[#058a50] text-white flex items-center justify-center flex-shrink-0">
-                            <Check className="w-2.5 h-2.5 stroke-[3]" />
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#058a50]">
+                    <UserIcon className="w-4 h-4 stroke-[2.2]" />
+                  </div>
+                  <select
+                    value={selectedUser}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSelectedUser(val);
+                      setUsername(val);
+                      setPassword('123456');
+                    }}
+                    className="w-full pl-10 pr-10 py-3 bg-emerald-50/60 hover:bg-emerald-50/90 border-2 border-emerald-200/90 focus:border-[#058a50] focus:ring-2 focus:ring-[#058a50]/20 rounded-2xl text-sm font-bold text-slate-900 transition appearance-none cursor-pointer"
+                  >
+                    {farmProfiles.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} — {p.role} ({p.id})
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-500">
+                    <ChevronDown className="w-4 h-4 stroke-[2.5]" />
+                  </div>
                 </div>
               </div>
 
