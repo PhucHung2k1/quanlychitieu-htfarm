@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: htfarm-postgres
+    container_name: htfarm-chitieu-postgres
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -17,7 +17,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: htfarm-redis
+    container_name: htfarm-chitieu-redis
     restart: always
     volumes:
       - redisdata:/data
@@ -26,7 +26,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: htfarm-backend
+    container_name: htfarm-chitieu-backend
     restart: always
     depends_on:
       postgres:
@@ -35,30 +35,17 @@ services:
       - .env.production
     volumes:
       - uploads_data:/app/uploads
-    expose:
-      - "3001"
+    ports:
+      - "127.0.0.1:3002:3001"
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: htfarm-frontend
-    restart: always
-    expose:
-      - "80"
-
-  nginx:
-    image: nginx:alpine
-    container_name: htfarm-nginx
+    container_name: htfarm-chitieu-frontend
     restart: always
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-    depends_on:
-      - backend
-      - frontend
+      - "127.0.0.1:8081:80"
 
 volumes:
   pgdata:
