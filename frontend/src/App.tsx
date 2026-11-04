@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { SummaryCards } from './components/SummaryCards';
 import { TransactionTable } from './components/TransactionTable';
@@ -6,8 +7,11 @@ import { AnalyticsPage } from './components/AnalyticsPage';
 import { AiReceiptModal } from './components/AiReceiptModal';
 import { ManualTransactionModal } from './components/ManualTransactionModal';
 import { LoginModal } from './components/LoginModal';
+import { JournalSkeleton, AnalyticsSkeleton } from './components/Skeletons';
 import { Transaction, SummaryData, ProjectTag, Category, User } from './types';
 import { authService, transactionService, metaService, getImageUrl } from './services/api';
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 import { Button } from './components/ui/button';
 import { Card } from './components/ui/card';
 import { Input } from './components/ui/input';
@@ -37,12 +41,26 @@ import {
 } from 'lucide-react';
 
 export function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Navigation tab state
-  const [activeTab, setActiveTab] = useState<'journal' | 'analytics'>('journal');
+  // Navigation tab state derived from current route
+  const isAnalyticsPage =
+    location.pathname.startsWith('/bao-cao') || location.pathname.startsWith('/analytics');
+  const activeTab: 'journal' | 'analytics' = isAnalyticsPage ? 'analytics' : 'journal';
+
+  const handleTabChange = (tab: 'journal' | 'analytics') => {
+    if (tab === 'analytics') {
+      navigate('/bao-cao');
+    } else {
+      navigate('/');
+    }
+  };
+
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     try {
@@ -248,16 +266,76 @@ export function App() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setCurrentUser(null);
+    navigate('/login');
   };
 
   const handleDeleteTransaction = async (id: string) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa giao dịch này khỏi sổ?')) {
+    const tx = transactions.find((t) => t.id === id);
+    const descText = tx ? `"${tx.description}"` : 'giao dịch này';
+    const amountText = tx
+      ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(tx.amount))
+      : '';
+
+    const result = await Swal.fire({
+      title: 'Xác nhận xóa giao dịch?',
+      html: `
+        <div style="font-size: 13px; color: #475569; margin-top: 6px; line-height: 1.6;">
+          Bạn có chắc chắn muốn xóa <b>${descText}</b> ${
+            amountText
+              ? `(<span style="color: ${tx?.type === 'INCOME' ? '#15803d' : '#e11d48'}; font-weight: bold;">${amountText}</span>)`
+              : ''
+          } khỏi sổ?<br/>
+          <span style="color: #94a3b8; font-size: 11px;">Hành động này sẽ xóa vĩnh viễn và không thể hoàn tác.</span>
+        </div>
+      `,
+      icon: 'warning',
+      iconColor: '#f59e0b',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Đồng ý xóa',
+      cancelButtonText: 'Hủy bỏ',
+      reverseButtons: true,
+      focusCancel: true,
+      customClass: {
+        popup: 'rounded-2xl shadow-2xl border border-slate-100 p-5 font-sans',
+        title: 'text-base font-black text-slate-800',
+        confirmButton: 'rounded-xl px-4 py-2 font-bold text-xs',
+        cancelButton: 'rounded-xl px-4 py-2 font-bold text-xs',
+      },
+    });
+
+    if (result.isConfirmed) {
       try {
         await transactionService.delete(id);
         fetchData();
-        showToast('Đã xóa giao dịch thành công!');
+        Swal.fire({
+          title: 'Đã xóa thành công!',
+          text: 'Giao dịch đã được gỡ bỏ khỏi sổ thu chi.',
+          icon: 'success',
+          iconColor: '#15803d',
+          timer: 1800,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          customClass: {
+            popup: 'rounded-2xl shadow-xl p-5 font-sans',
+            title: 'text-sm font-bold text-slate-800',
+            htmlContainer: 'text-xs text-slate-500',
+          },
+        });
       } catch (err: any) {
-        alert('Lỗi khi xóa giao dịch: ' + (err.response?.data?.message || err.message));
+        Swal.fire({
+          title: 'Không thể xóa giao dịch',
+          text: err.response?.data?.message || err.message || 'Đã có lỗi xảy ra',
+          icon: 'error',
+          iconColor: '#e11d48',
+          confirmButtonText: 'Đóng',
+          confirmButtonColor: '#15803d',
+          customClass: {
+            popup: 'rounded-2xl shadow-xl p-5 font-sans',
+            title: 'text-sm font-bold text-slate-800',
+          },
+        });
       }
     }
   };
@@ -275,10 +353,6 @@ export function App() {
     );
   }
 
-  if (!currentUser) {
-    return <LoginModal onLoginSuccess={(u) => setCurrentUser(u)} />;
-  }
-
   // Danh sách các tab lọc (Lỗi 4: Tab đang chọn là pill xanh đặc, tab chưa chọn trắng viền xám, số đếm trong badge nhỏ)
   const filterTabs = [
     { id: 'ALL', label: 'Tất cả', count: typeCounts.all },
@@ -290,24 +364,49 @@ export function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex font-sans antialiased overflow-x-hidden w-full max-w-full min-w-0">
-      {/* ================= 1. SIDEBAR TRÁI ================= */}
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        currentUser={currentUser}
-        onLogout={handleLogout}
-        projectTags={projectTags}
-        selectedTagId={selectedTagId}
-        setSelectedTagId={setSelectedTagId}
-        isMobileOpen={isMobileSidebarOpen}
-        onCloseMobile={() => setIsMobileSidebarOpen(false)}
-        isCollapsed={isSidebarCollapsed}
-        onToggleCollapse={toggleSidebarCollapse}
-        tagCounts={projectTxCounts}
-        totalTxCount={overallTotalCount}
-        summary={summary}
+    <Routes>
+      {/* 1. ROUTE ĐĂNG NHẬP */}
+      <Route
+        path="/login"
+        element={
+          currentUser ? (
+            <Navigate to="/" replace />
+          ) : (
+            <LoginModal
+              onLoginSuccess={(u) => {
+                setCurrentUser(u);
+                navigate('/');
+              }}
+            />
+          )
+        }
       />
+
+      {/* 2. CÁC ROUTE NGHIỆP VỤ (YÊU CẦU ĐĂNG NHẬP) */}
+      <Route
+        path="/*"
+        element={
+          !currentUser ? (
+            <Navigate to="/login" replace />
+          ) : (
+            <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex font-sans antialiased overflow-x-hidden w-full max-w-full min-w-0">
+              {/* ================= 1. SIDEBAR TRÁI ================= */}
+              <Sidebar
+                activeTab={activeTab}
+                setActiveTab={handleTabChange}
+                currentUser={currentUser}
+                onLogout={handleLogout}
+                projectTags={projectTags}
+                selectedTagId={selectedTagId}
+                setSelectedTagId={setSelectedTagId}
+                isMobileOpen={isMobileSidebarOpen}
+                onCloseMobile={() => setIsMobileSidebarOpen(false)}
+                isCollapsed={isSidebarCollapsed}
+                onToggleCollapse={toggleSidebarCollapse}
+                tagCounts={projectTxCounts}
+                totalTxCount={overallTotalCount}
+                summary={summary}
+              />
 
       {/* ================= 2. KHU VỰC NỘI DUNG CHÍNH (BÊN PHẢI) ================= */}
       <div className={`flex-1 ${isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'} transition-all duration-300 flex flex-col min-w-0 max-w-full overflow-x-hidden min-h-screen`}>
@@ -392,215 +491,242 @@ export function App() {
           </div>
         </header>
 
-        {/* Nội dung trang theo Tab (Lỗi 1: Trang không được cuộn ngang) */}
+        {/* Nội dung trang theo Routes & Loading Skeletons */}
         <main className="p-4 sm:p-6 lg:p-8 space-y-5 flex-1 w-full max-w-full min-w-0">
-          {activeTab === 'journal' ? (
-            /* ================= VIEW 1: SỔ THU CHI ================= */
-            <>
-              {/* Thống kê Tổng quan & Các Quỹ (Hero Card MB Bank Option 1) */}
-              <SummaryCards
-                summary={summary}
-                onFilterMb={() => setTxTypeFilter('MB_BANK')}
-              />
-
-              {/* Thanh Công Cụ & Bộ Lọc Nhanh (Lỗi 4: Tab đang chọn là pill xanh đặc, tab chưa chọn trắng viền xám, badge nhỏ) */}
-              <Card className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-3.5">
-                {/* Hàng 1: Tabs phân loại giao dịch */}
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    {filterTabs.map((tab) => {
-                      const isSelected = txTypeFilter === tab.id;
-                      return (
-                        <button
-                          key={tab.id}
-                          type="button"
-                          onClick={() => setTxTypeFilter(tab.id as any)}
-                          className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs transition-all ${
-                            isSelected
-                              ? 'bg-[#15803d] text-white border border-[#15803d] font-bold shadow-xs'
-                              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 font-medium'
-                          }`}
-                        >
-                          <span>{tab.label}</span>
-                          <span
-                            className={`ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold font-mono ${
-                              isSelected
-                                ? 'bg-white/20 text-white'
-                                : 'bg-slate-100 text-slate-600 border border-slate-200'
-                            }`}
-                          >
-                            {tab.count}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Nút đặt lại bộ lọc */}
-                  {isAnyFilterActive && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={resetAllFilters}
-                      className="h-8 text-xs font-semibold space-x-1.5 shrink-0 self-start lg:self-auto border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                      title="Xóa tất cả các bộ lọc đang chọn"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Đặt lại bộ lọc</span>
-                    </Button>
-                  )}
-                </div>
-
-                {/* Hàng 2: Tìm kiếm, Lọc Tháng, Năm, Sắp xếp */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2.5 pt-3 border-t border-slate-100 text-xs">
-                  {/* Ô tìm kiếm */}
-                  <div className="relative sm:col-span-2">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 z-10 pointer-events-none" />
-                    <Input
-                      type="text"
-                      placeholder="Tìm nội dung, đối tác, số tiền..."
-                      value={searchKeyword}
-                      onChange={(e) => setSearchKeyword(e.target.value)}
-                      className="pl-9 pr-8 h-9 text-xs border-slate-200"
+          <Routes>
+            {/* ROUTE 1: SỔ KẾ TOÁN THU CHI */}
+            <Route
+              path="/"
+              element={
+                loading && !transactions.length ? (
+                  <JournalSkeleton />
+                ) : (
+                  <>
+                    {/* Thống kê Tổng quan & Các Quỹ (Hero Card MB Bank Option 1) */}
+                    <SummaryCards
+                      summary={summary}
+                      onFilterMb={() => setTxTypeFilter('MB_BANK')}
                     />
-                    {searchKeyword && (
-                      <button
-                        onClick={() => setSearchKeyword('')}
-                        className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-700 z-10"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
 
-                  {/* Lọc Tháng */}
-                  <Select
-                    value={selectedMonth || 'ALL'}
-                    onValueChange={(val) => setSelectedMonth(val === 'ALL' ? '' : val)}
-                  >
-                    <SelectTrigger className="h-9 text-xs border-slate-200">
-                      <SelectValue placeholder="Tất cả các tháng" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ALL">Tất cả các tháng</SelectItem>
-                      {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                        <SelectItem key={m} value={m.toString()}>
-                          Tháng {m}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    {/* Thanh Công Cụ & Bộ Lọc Nhanh */}
+                    <Card className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-3.5">
+                      {/* Hàng 1: Tabs phân loại giao dịch */}
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {filterTabs.map((tab) => {
+                            const isSelected = txTypeFilter === tab.id;
+                            return (
+                              <button
+                                key={tab.id}
+                                type="button"
+                                onClick={() => setTxTypeFilter(tab.id as any)}
+                                className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs transition-all ${
+                                  isSelected
+                                    ? 'bg-[#15803d] text-white border border-[#15803d] font-bold shadow-xs'
+                                    : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 font-medium'
+                                }`}
+                              >
+                                <span>{tab.label}</span>
+                                <span
+                                  className={`ml-1.5 px-1.5 py-0.2 rounded-full text-[10px] font-bold font-mono ${
+                                    isSelected
+                                      ? 'bg-white/20 text-white'
+                                      : 'bg-slate-100 text-slate-600 border border-slate-200'
+                                  }`}
+                                >
+                                  {tab.count}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
 
-                  {/* Lọc Năm */}
-                  <Select
-                    value={selectedYear || 'ALL'}
-                    onValueChange={(val) => setSelectedYear(val === 'ALL' ? '' : val)}
-                  >
-                    <SelectTrigger className="h-9 text-xs border-slate-200">
-                      <SelectValue placeholder="Tất cả các năm" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ALL">Tất cả các năm</SelectItem>
-                      <SelectItem value="2026">Năm 2026</SelectItem>
-                      <SelectItem value="2025">Năm 2025</SelectItem>
-                    </SelectContent>
-                  </Select>
+                        {/* Nút đặt lại bộ lọc */}
+                        {isAnyFilterActive && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={resetAllFilters}
+                            className="h-8 text-xs font-semibold space-x-1.5 shrink-0 self-start lg:self-auto border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                            title="Xóa tất cả các bộ lọc đang chọn"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
+                            <span>Đặt lại bộ lọc</span>
+                          </Button>
+                        )}
+                      </div>
 
-                  {/* Thứ tự sắp xếp */}
-                  <Select
-                    value={sortBy}
-                    onValueChange={(val: any) => setSortBy(val)}
-                  >
-                    <SelectTrigger className="h-9 text-xs border-slate-200">
-                      <SelectValue placeholder="Sắp xếp" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="createdAt">Mới lưu gần nhất</SelectItem>
-                      <SelectItem value="date">Theo ngày hóa đơn</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                      {/* Hàng 2: Tìm kiếm, Lọc Tháng, Năm, Sắp xếp */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2.5 pt-3 border-t border-slate-100 text-xs">
+                        {/* Ô tìm kiếm */}
+                        <div className="relative sm:col-span-2">
+                          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5 z-10 pointer-events-none" />
+                          <Input
+                            type="text"
+                            placeholder="Tìm nội dung, đối tác, số tiền..."
+                            value={searchKeyword}
+                            onChange={(e) => setSearchKeyword(e.target.value)}
+                            className="pl-9 pr-8 h-9 text-xs border-slate-200"
+                          />
+                          {searchKeyword && (
+                            <button
+                              onClick={() => setSearchKeyword('')}
+                              className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-700 z-10"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
 
-                {/* Hàng 3: Chip hiển thị trạng thái lọc */}
-                {(selectedTagId || selectedMonth || selectedYear || searchKeyword.trim()) && (
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs">
-                    <span className="text-slate-400 text-[11px] font-medium mr-1">Đang lọc theo:</span>
-
-                    {selectedTagId && activeProjectTag && (
-                      <Badge variant="outline" className="space-x-1 py-0.5 px-2 bg-slate-50 text-slate-700 border-slate-200">
-                        <span>Dự án: {activeProjectTag.name}</span>
-                        <button
-                          onClick={() => setSelectedTagId('')}
-                          className="hover:text-rose-600 transition ml-0.5"
+                        {/* Lọc Tháng */}
+                        <Select
+                          value={selectedMonth || 'ALL'}
+                          onValueChange={(val) => setSelectedMonth(val === 'ALL' ? '' : val)}
                         >
-                          ✕
-                        </button>
-                      </Badge>
-                    )}
+                          <SelectTrigger className="h-9 text-xs border-slate-200">
+                            <SelectValue placeholder="Tất cả các tháng" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ALL">Tất cả các tháng</SelectItem>
+                            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                              <SelectItem key={m} value={m.toString()}>
+                                Tháng {m}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
 
-                    {selectedMonth && (
-                      <Badge variant="outline" className="space-x-1 py-0.5 px-2 bg-slate-50 text-slate-700 border-slate-200">
-                        <span>Tháng {selectedMonth}</span>
-                        <button
-                          onClick={() => setSelectedMonth('')}
-                          className="hover:text-rose-600 transition ml-0.5"
+                        {/* Lọc Năm */}
+                        <Select
+                          value={selectedYear || 'ALL'}
+                          onValueChange={(val) => setSelectedYear(val === 'ALL' ? '' : val)}
                         >
-                          ✕
-                        </button>
-                      </Badge>
-                    )}
+                          <SelectTrigger className="h-9 text-xs border-slate-200">
+                            <SelectValue placeholder="Tất cả các năm" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ALL">Tất cả các năm</SelectItem>
+                            <SelectItem value="2026">Năm 2026</SelectItem>
+                            <SelectItem value="2025">Năm 2025</SelectItem>
+                          </SelectContent>
+                        </Select>
 
-                    {selectedYear && (
-                      <Badge variant="outline" className="space-x-1 py-0.5 px-2 bg-slate-50 text-slate-700 border-slate-200">
-                        <span>Năm {selectedYear}</span>
-                        <button
-                          onClick={() => setSelectedYear('')}
-                          className="hover:text-rose-600 transition ml-0.5"
+                        {/* Thứ tự sắp xếp */}
+                        <Select
+                          value={sortBy}
+                          onValueChange={(val: any) => setSortBy(val)}
                         >
-                          ✕
-                        </button>
-                      </Badge>
-                    )}
+                          <SelectTrigger className="h-9 text-xs border-slate-200">
+                            <SelectValue placeholder="Sắp xếp" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="createdAt">Mới lưu gần nhất</SelectItem>
+                            <SelectItem value="date">Theo ngày hóa đơn</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                    {searchKeyword.trim() && (
-                      <Badge variant="outline" className="space-x-1 py-0.5 px-2 bg-slate-50 text-slate-700 border-slate-200">
-                        <span>Từ khóa: "{searchKeyword.trim()}"</span>
-                        <button
-                          onClick={() => setSearchKeyword('')}
-                          className="hover:text-rose-600 transition ml-0.5"
-                        >
-                          ✕
-                        </button>
-                      </Badge>
-                    )}
-                  </div>
-                )}
-              </Card>
+                      {/* Hàng 3: Chip hiển thị trạng thái lọc */}
+                      {(selectedTagId || selectedMonth || selectedYear || searchKeyword.trim()) && (
+                        <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs">
+                          <span className="text-slate-400 text-[11px] font-medium mr-1">Đang lọc theo:</span>
 
-              {/* Bảng Kế Toán Thu Chi Phân Trang (Lỗi 1) */}
-              <TransactionTable
-                transactions={displayedTransactions}
-                onEdit={handleEditTransaction}
-                onDelete={handleDeleteTransaction}
-                onViewBill={handleOpenBill}
-                onResetFilters={resetAllFilters}
-              />
-            </>
-          ) : (
-            /* ================= VIEW 2: TRANG BÁO CÁO & BIỂU ĐỒ (Lỗi 2) ================= */
-            <AnalyticsPage
-              transactions={transactions}
-              summary={summary}
-              projectTags={projectTags}
-              categories={categories}
-              selectedTagId={selectedTagId}
-              setSelectedTagId={setSelectedTagId}
-              selectedMonth={selectedMonth}
-              setSelectedMonth={setSelectedMonth}
-              selectedYear={selectedYear}
-              setSelectedYear={setSelectedYear}
+                          {selectedTagId && activeProjectTag && (
+                            <Badge variant="outline" className="space-x-1 py-0.5 px-2 bg-slate-50 text-slate-700 border-slate-200">
+                              <span>Dự án: {activeProjectTag.name}</span>
+                              <button
+                                onClick={() => setSelectedTagId('')}
+                                className="hover:text-rose-600 transition ml-0.5"
+                              >
+                                ✕
+                              </button>
+                            </Badge>
+                          )}
+
+                          {selectedMonth && (
+                            <Badge variant="outline" className="space-x-1 py-0.5 px-2 bg-slate-50 text-slate-700 border-slate-200">
+                              <span>Tháng {selectedMonth}</span>
+                              <button
+                                onClick={() => setSelectedMonth('')}
+                                className="hover:text-rose-600 transition ml-0.5"
+                              >
+                                ✕
+                              </button>
+                            </Badge>
+                          )}
+
+                          {selectedYear && (
+                            <Badge variant="outline" className="space-x-1 py-0.5 px-2 bg-slate-50 text-slate-700 border-slate-200">
+                              <span>Năm {selectedYear}</span>
+                              <button
+                                onClick={() => setSelectedYear('')}
+                                className="hover:text-rose-600 transition ml-0.5"
+                              >
+                                ✕
+                              </button>
+                            </Badge>
+                          )}
+
+                          {searchKeyword.trim() && (
+                            <Badge variant="outline" className="space-x-1 py-0.5 px-2 bg-slate-50 text-slate-700 border-slate-200">
+                              <span>Từ khóa: "{searchKeyword.trim()}"</span>
+                              <button
+                                onClick={() => setSearchKeyword('')}
+                                className="hover:text-rose-600 transition ml-0.5"
+                              >
+                                ✕
+                              </button>
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </Card>
+
+                    {/* Bảng Kế Toán Thu Chi Phân Trang */}
+                    <TransactionTable
+                      transactions={displayedTransactions}
+                      onEdit={handleEditTransaction}
+                      onDelete={handleDeleteTransaction}
+                      onViewBill={handleOpenBill}
+                      onResetFilters={resetAllFilters}
+                    />
+                  </>
+                )
+              }
             />
-          )}
+
+            {/* ROUTE ALIAS CHO SỔ THU CHI */}
+            <Route path="/so-thu-chi" element={<Navigate to="/" replace />} />
+
+            {/* ROUTE 2: BÁO CÁO & BIỂU ĐỒ FINTECH */}
+            <Route
+              path="/bao-cao"
+              element={
+                loading && !transactions.length ? (
+                  <AnalyticsSkeleton />
+                ) : (
+                  <AnalyticsPage
+                    transactions={transactions}
+                    summary={summary}
+                    projectTags={projectTags}
+                    categories={categories}
+                    selectedTagId={selectedTagId}
+                    setSelectedTagId={setSelectedTagId}
+                    selectedMonth={selectedMonth}
+                    setSelectedMonth={setSelectedMonth}
+                    selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
+                  />
+                )
+              }
+            />
+
+            {/* ROUTE ALIAS CHO BÁO CÁO */}
+            <Route path="/analytics" element={<Navigate to="/bao-cao" replace />} />
+
+            {/* CATCH-ALL ROUTE: ĐIỀU HƯỚNG VỀ TRANG CHỦ */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </main>
 
         {/* Footer */}
@@ -732,7 +858,11 @@ export function App() {
           </div>
         </div>
       )}
-    </div>
+            </div>
+          )
+        }
+      />
+    </Routes>
   );
 }
 

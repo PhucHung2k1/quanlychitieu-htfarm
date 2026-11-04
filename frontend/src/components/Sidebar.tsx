@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { User, ProjectTag, SummaryData } from '../types';
 import logoIcon from '../images/HTFARM_ICON.png';
 import {
@@ -43,11 +44,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen,
   onCloseMobile,
   isCollapsed,
-  onToggleCollapse,
+  onToggleCollapse: _onToggleCollapse,
   tagCounts = {},
   totalTxCount = 0,
-  summary,
+  summary: _summary,
 }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isAnalyticsActive =
+    location.pathname.startsWith('/bao-cao') ||
+    location.pathname.startsWith('/analytics') ||
+    activeTab === 'analytics';
+  const isJournalActive = !isAnalyticsActive;
+
   const getInitials = (name?: string) => {
     if (!name) return 'HT';
     const parts = name.trim().split(' ');
@@ -154,7 +164,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* Tab 1: Sổ Thu Chi (06.1/BCTC) */}
             <button
               onClick={() => {
-                setActiveTab('journal');
+                navigate('/');
+                if (setActiveTab) setActiveTab('journal');
                 onCloseMobile();
               }}
               title="Sổ Kế Toán Thu Chi"
@@ -163,7 +174,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   ? 'justify-center p-2.5'
                   : 'justify-between px-3 py-2.5'
               } ${
-                activeTab === 'journal'
+                isJournalActive
                   ? 'bg-emerald-50 text-[#15803d] shadow-xs border border-emerald-200/80'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`}
@@ -171,12 +182,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex items-center space-x-2.5">
                 <FileSpreadsheet
                   className={`w-4 h-4 flex-shrink-0 ${
-                    activeTab === 'journal' ? 'text-[#15803d]' : 'text-slate-400'
+                    isJournalActive ? 'text-[#15803d]' : 'text-slate-400'
                   }`}
                 />
                 {!isCollapsed && <span>Sổ Kế Toán Thu Chi</span>}
               </div>
-              {!isCollapsed && activeTab === 'journal' && (
+              {!isCollapsed && isJournalActive && (
                 <span className="w-1.5 h-1.5 rounded-full bg-[#15803d]" />
               )}
             </button>
@@ -184,7 +195,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* Tab 2: Báo Cáo & Biểu Đồ Thống Kê */}
             <button
               onClick={() => {
-                setActiveTab('analytics');
+                navigate('/bao-cao');
+                if (setActiveTab) setActiveTab('analytics');
                 onCloseMobile();
               }}
               title="Báo Cáo & Biểu Đồ"
@@ -193,7 +205,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   ? 'justify-center p-2.5'
                   : 'justify-between px-3 py-2.5'
               } ${
-                activeTab === 'analytics'
+                isAnalyticsActive
                   ? 'bg-emerald-50 text-[#15803d] shadow-xs border border-emerald-200/80'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`}
@@ -201,12 +213,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex items-center space-x-2.5">
                 <BarChart3
                   className={`w-4 h-4 flex-shrink-0 ${
-                    activeTab === 'analytics' ? 'text-[#15803d]' : 'text-slate-400'
+                    isAnalyticsActive ? 'text-[#15803d]' : 'text-slate-400'
                   }`}
                 />
                 {!isCollapsed && <span>Báo Cáo & Biểu Đồ</span>}
               </div>
-              {!isCollapsed && activeTab === 'analytics' && (
+              {!isCollapsed && isAnalyticsActive && (
                 <span className="w-1.5 h-1.5 rounded-full bg-[#15803d]" />
               )}
             </button>
