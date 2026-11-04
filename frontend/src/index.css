@@ -2,9 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 1. Giữ ổn định rãnh cuộn cho toàn bộ trang, chống giật layout khi mở Modal hoặc Select */
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   margin: 0;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* 2. Triệt tiêu hoàn toàn việc Radix UI / react-remove-scroll tự chèn margin-right / padding-right và overflow: hidden */
+html body[data-scroll-locked],
+body[data-scroll-locked] {
+  overflow: auto !important;
+  margin-right: 0px !important;
+  padding-right: 0px !important;
+}
+
+/* 3. Tinh chỉnh thanh cuộn Webkit hiện đại siêu mảnh (6px), không bị dày cộm 17px xám xịt của Windows */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .font-brand {

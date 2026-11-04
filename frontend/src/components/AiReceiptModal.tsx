@@ -215,10 +215,17 @@ export const AiReceiptModal: React.FC<AiReceiptModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        onClick={handleModalClose}
+      />
+
+      {/* Modal Box */}
+      <div className="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-10 border border-slate-100">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-emerald-50 to-teal-50">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-gradient-to-r from-emerald-50 to-teal-50 shrink-0">
           <div className="flex items-center space-x-2.5">
             <div className="p-2 bg-emerald-600 text-white rounded-xl shadow-sm">
               <Sparkles className="w-5 h-5" />
@@ -239,7 +246,7 @@ export const AiReceiptModal: React.FC<AiReceiptModalProps> = ({
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-6 overflow-y-auto flex-1 [scrollbar-gutter:stable]">
           {!parsedData ? (
             /* Bước 1: Upload và quét */
             <div className="space-y-6 max-w-xl mx-auto py-6">

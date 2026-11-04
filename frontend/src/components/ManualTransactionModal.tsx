@@ -130,13 +130,22 @@ export const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-4 sm:p-6 my-auto max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-200 mb-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        onClick={onClose}
+      />
+
+      {/* Modal Box */}
+      <div className="relative bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-10 border border-slate-100">
+        {/* Header Cố Định */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 shrink-0 bg-white">
           <h3 className="font-bold text-slate-900 text-base">
             {editingTransaction ? 'Chỉnh Sửa Giao Dịch' : 'Thêm Giao Dịch Mới'}
           </h3>
           <button
+            type="button"
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition"
           >
@@ -144,8 +153,11 @@ export const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
-          {/* Ngày & Loại */}
+        {/* Form Container */}
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          {/* Scrollable Form Body với rãnh cuộn ổn định tuyệt đối */}
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3.5 text-xs [scrollbar-gutter:stable]">
+            {/* Ngày & Loại */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block font-semibold text-slate-700 mb-1">
@@ -417,28 +429,30 @@ export const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
             </div>
           </div>
 
-          {/* Submit */}
-          <div className="pt-3 flex items-center justify-end space-x-3 border-t border-slate-200">
+          </div>
+
+          {/* Sticky Footer Cố Định */}
+          <div className="px-5 py-3.5 border-t border-slate-100 bg-slate-50/70 flex items-center justify-end space-x-3 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 border border-slate-300 rounded-xl text-slate-600 hover:bg-slate-50 font-medium"
+              className="px-4 py-2 border border-slate-200 bg-white rounded-xl text-slate-600 hover:bg-slate-50 font-medium text-xs shadow-2xs transition"
             >
               Hủy Bỏ
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-xl shadow transition flex items-center space-x-2 disabled:opacity-50"
+              className="bg-[#15803d] hover:bg-[#166534] text-white font-bold px-5 py-2 rounded-xl shadow-xs transition flex items-center space-x-2 disabled:opacity-50 text-xs"
             >
               {saving ? (
                 <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                   <span>Đang lưu...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>{editingTransaction ? 'Cập Nhật' : 'Lưu Giao Dịch'}</span>
                 </>
               )}
