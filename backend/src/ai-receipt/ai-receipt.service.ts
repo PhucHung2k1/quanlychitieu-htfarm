@@ -60,8 +60,8 @@ export class AiReceiptService {
           this.genAI = new GoogleGenerativeAI(apiKey.trim());
         }
 
-        // gemini-3.5-flash-lite is the fastest vision model (~1s response time)
-        const modelNames = ['gemini-3.5-flash-lite', 'gemini-flash-latest'];
+        // Standard Google Gemini Vision Models
+        const modelNames = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
         let lastError: any = null;
 
         for (const modelName of modelNames) {
@@ -146,8 +146,14 @@ CHỈ TRẢ VỀ DUY NHẤT 1 ĐỐI TƯỢNG JSON HỢP LỆ (không thêm gi�
         if (lastError) {
           throw lastError;
         }
-      } catch (error) {
+      } catch (error: any) {
         this.logger.error('Gemini OCR Error:', error);
+        return this.fallbackHeuristicParser(
+          file.originalname,
+          error?.message?.includes('API key not valid')
+            ? 'API key Gemini không hợp lệ (cần key bắt đầu bằng AIzaSy...)'
+            : `Lỗi gọi Gemini Vision: ${error?.message || 'Không thể kết nối'}`
+        );
       }
     }
 
@@ -197,7 +203,11 @@ CHỈ TRẢ VỀ DUY NHẤT 1 ĐỐI TƯỢNG JSON HỢP LỆ (không thêm gi�
     };
   }
 
-  private fallbackHeuristicParser(filename: string): AiParsedReceiptResult {
+  private fallbackHeuristicParser(filename: string, errorReason?: string): AiParsedReceiptResult {
+    const reasonText = errorReason
+      ? errorReason
+      : 'Chưa cấu hình GEMINI_API_KEY, vui lòng nhập số tiền';
+
     return {
       date: new Date().toISOString().split('T')[0],
       description: `Hóa đơn từ tệp ${filename}`,
@@ -209,7 +219,7 @@ CHỈ TRẢ VỀ DUY NHẤT 1 ĐỐI TƯỢNG JSON HỢP LỆ (không thêm gi�
         {
           field: 'amount',
           label: 'Số tiền',
-          reason: 'Chưa cấu hình GEMINI_API_KEY, vui lòng nhập số tiền',
+          reason: reasonText,
           suggestedValue: 0,
         },
         {
@@ -224,7 +234,7 @@ CHỈ TRẢ VỀ DUY NHẤT 1 ĐỐI TƯỢNG JSON HỢP LỆ (không thêm gi�
           suggestedValue: 'HT_FARM',
         },
       ],
-      aiNotes: 'Vui lòng cấu hình GEMINI_API_KEY trong backend/.env để AI tự động nhận diện từ ảnh.',
+      aiNotes: errorReason || 'Vui lòng cấu hình GEMINI_API_KEY chuẩn trong file .env để AI tự động nhận diện từ ảnh.',
     };
   }
 }
