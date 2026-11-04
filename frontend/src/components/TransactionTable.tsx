@@ -69,9 +69,9 @@ interface ColumnDef {
 const TABLE_COLUMNS: ColumnDef[] = [
   { key: 'date', label: 'Ngày', defaultVisible: true },
   { key: 'description', label: 'Nội dung / Diễn giải', defaultVisible: true },
-  { key: 'quantity', label: 'Số lượng (SL)', defaultVisible: true },
-  { key: 'unit', label: 'Đơn vị tính (ĐVT)', defaultVisible: true },
-  { key: 'unitPrice', label: 'Đơn giá', defaultVisible: true },
+  { key: 'quantity', label: 'Số lượng (SL)', defaultVisible: false },
+  { key: 'unit', label: 'Đơn vị tính (ĐVT)', defaultVisible: false },
+  { key: 'unitPrice', label: 'Đơn giá', defaultVisible: false },
   { key: 'thuTM', label: 'Thu Tiền Mặt (Thu TM)', defaultVisible: true },
   { key: 'chiTM', label: 'Chi Tiền Mặt (Chi TM)', defaultVisible: true },
   { key: 'thuMB', label: 'Thu MB Bank (Thu MB)', defaultVisible: true },
@@ -83,7 +83,7 @@ const TABLE_COLUMNS: ColumnDef[] = [
   { key: 'actions', label: 'Thao tác', defaultVisible: true },
 ];
 
-const DEFAULT_VISIBLE_KEYS: ColumnKey[] = TABLE_COLUMNS.map((c) => c.key);
+const DEFAULT_VISIBLE_KEYS: ColumnKey[] = TABLE_COLUMNS.filter((c) => c.defaultVisible).map((c) => c.key);
 
 interface TransactionTableProps {
   transactions: Transaction[];
@@ -228,10 +228,10 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
     }
   };
 
-  // Tùy chọn hiển thị cột (Filter columns)
+  // Tùy chọn hiển thị cột (Mặc định 11/14 cột)
   const [visibleColumns, setVisibleColumns] = useState<ColumnKey[]>(() => {
     try {
-      const saved = localStorage.getItem('htfarm_table_visible_columns');
+      const saved = localStorage.getItem('htfarm_table_visible_columns_v2');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -249,26 +249,27 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
         if (prev.length <= 1) return prev;
         next = prev.filter((k) => k !== key);
       } else {
-        next = DEFAULT_VISIBLE_KEYS.filter((k) => prev.includes(k) || k === key);
+        next = TABLE_COLUMNS.map((c) => c.key).filter((k) => prev.includes(k) || k === key);
       }
       try {
-        localStorage.setItem('htfarm_table_visible_columns', JSON.stringify(next));
+        localStorage.setItem('htfarm_table_visible_columns_v2', JSON.stringify(next));
       } catch {}
       return next;
     });
   };
 
   const handleSelectAllColumns = () => {
-    setVisibleColumns(DEFAULT_VISIBLE_KEYS);
+    const all = TABLE_COLUMNS.map((c) => c.key);
+    setVisibleColumns(all);
     try {
-      localStorage.setItem('htfarm_table_visible_columns', JSON.stringify(DEFAULT_VISIBLE_KEYS));
+      localStorage.setItem('htfarm_table_visible_columns_v2', JSON.stringify(all));
     } catch {}
   };
 
   const handleResetColumns = () => {
     setVisibleColumns(DEFAULT_VISIBLE_KEYS);
     try {
-      localStorage.setItem('htfarm_table_visible_columns', JSON.stringify(DEFAULT_VISIBLE_KEYS));
+      localStorage.setItem('htfarm_table_visible_columns_v2', JSON.stringify(DEFAULT_VISIBLE_KEYS));
     } catch {}
   };
 
@@ -356,35 +357,38 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                   </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-60 p-2">
-                <div className="flex items-center justify-between pb-2 mb-1.5 border-b border-slate-100 px-1">
-                  <span className="text-xs font-bold text-slate-800">
+              <DropdownMenuContent align="end" className="w-[310px] p-2.5 shadow-xl border-slate-200">
+                <div className="flex items-center justify-between pb-2 mb-1.5 border-b border-slate-100 px-1 gap-2">
+                  <span className="text-xs font-bold text-slate-800 whitespace-nowrap">
                     Hiển thị cột ({visibleColumns.length}/{TABLE_COLUMNS.length})
                   </span>
-                  <div className="flex items-center gap-1.5 text-[11px]">
+                  <div className="flex items-center gap-2 text-[11px] whitespace-nowrap shrink-0">
                     <button
+                      type="button"
                       onClick={handleSelectAllColumns}
-                      className="text-[#15803d] hover:underline font-semibold"
+                      className="text-[#15803d] hover:underline font-semibold whitespace-nowrap transition cursor-pointer"
                     >
                       Hiện hết
                     </button>
                     <span className="text-slate-300">·</span>
                     <button
+                      type="button"
                       onClick={handleResetColumns}
-                      className="text-slate-500 hover:underline flex items-center gap-0.5"
+                      className="text-slate-500 hover:text-slate-800 hover:underline flex items-center gap-1 whitespace-nowrap transition cursor-pointer"
                     >
-                      <RotateCcw className="w-2.5 h-2.5" />
+                      <RotateCcw className="w-3 h-3 text-slate-400" />
                       <span>Mặc định</span>
                     </button>
                   </div>
                 </div>
-                <div className="max-h-72 overflow-y-auto space-y-0.5">
+                <div className="max-h-72 overflow-y-auto space-y-0.5 [scrollbar-gutter:stable]">
                   {TABLE_COLUMNS.map((col) => (
                     <DropdownMenuCheckboxItem
                       key={col.key}
                       checked={visibleColumns.includes(col.key)}
                       onCheckedChange={() => handleToggleColumn(col.key)}
                       onSelect={(e) => e.preventDefault()}
+                      className="text-xs py-1.5 cursor-pointer"
                     >
                       {col.label}
                     </DropdownMenuCheckboxItem>
@@ -938,34 +942,34 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                 </div>
 
                 {/* Nút Xem Chi Tiết, Sửa & Xóa */}
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-1 shrink-0">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setSelectedDetailTx(tx)}
-                    className="h-7 px-2 text-xs text-[#15803d] bg-emerald-50 hover:bg-emerald-100 font-semibold flex items-center gap-1"
+                    className="h-7 px-2 text-xs text-[#15803d] bg-emerald-50 hover:bg-emerald-100 font-semibold flex items-center gap-1 whitespace-nowrap shrink-0"
                     title="Xem chi tiết hóa đơn"
                   >
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>Chi tiết</span>
+                    <Eye className="w-3.5 h-3.5 shrink-0" />
+                    <span className="whitespace-nowrap">Chi tiết</span>
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onEdit(tx)}
-                    className="h-7 px-2 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    className="h-7 px-2 text-xs text-slate-600 hover:text-slate-900 hover:bg-slate-100 whitespace-nowrap shrink-0"
                   >
-                    <Edit2 className="w-3.5 h-3.5 mr-1" />
-                    <span>Sửa</span>
+                    <Edit2 className="w-3.5 h-3.5 mr-1 shrink-0" />
+                    <span className="whitespace-nowrap">Sửa</span>
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => onDelete(tx.id)}
-                    className="h-7 px-2 text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                    className="h-7 px-2 text-xs text-slate-400 hover:text-rose-600 hover:bg-rose-50 whitespace-nowrap shrink-0"
                   >
-                    <Trash2 className="w-3.5 h-3.5 mr-1" />
-                    <span>Xóa</span>
+                    <Trash2 className="w-3.5 h-3.5 mr-1 shrink-0" />
+                    <span className="whitespace-nowrap">Xóa</span>
                   </Button>
                 </div>
               </div>

@@ -108,12 +108,12 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ summary, onFilterMb 
           </div>
 
           {/* Bottom row: Breakdown & Action */}
-          <div className="mt-4 pt-3 border-t border-emerald-500/40 flex items-center justify-between text-xs font-medium">
-            <span className="text-emerald-100 text-[11px] tabular-nums">
+          <div className="mt-4 pt-3 border-t border-emerald-500/40 flex items-center justify-between text-xs font-medium gap-2">
+            <span className="text-emerald-100 text-[11px] tabular-nums truncate">
               Thu: +{formatCurrency(mbIncome)} · Chi: -{formatCurrency(mbExpense)}
             </span>
-            <span className="font-bold text-white flex items-center gap-1 group-hover:translate-x-0.5 transition text-xs">
-              <span>Chi tiết</span>
+            <span className="font-bold text-white flex items-center gap-1 group-hover:translate-x-0.5 transition text-xs whitespace-nowrap shrink-0">
+              <span className="whitespace-nowrap">Chi tiết</span>
               <span aria-hidden="true">&rarr;</span>
             </span>
           </div>
