@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TransactionType {
+  INCOME  // Thu
+  EXPENSE // Chi
+}
+
+enum PaymentMethod {
+  CASH          // Tiền mặt
+  MAIN_BANK_MB  // MB Bank chính
+  OTHER_ACCOUNT // Tài khoản khác chi hộ
+}
+
+model User {
+  id           String        @id @default(uuid())
+  username     String        @unique
+  password     String        // hashed
+  fullName     String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+model Category {
+  id           String          @id @default(uuid())
+  name         String
+  type         TransactionType @default(EXPENSE)
+  icon         String?
+  transactions Transaction[]
+
+  @@map("categories")
+}
+
+model ProjectTag {
+  id           String        @id @default(uuid())
+  code         String        @unique // TAM_TIN, FARM_GA, HT_FARM, ...
+  name         String        // "HTX Tâm Tín", "Farm Gà", "HT Farm Chung"
+  description  String?
+  transactions Transaction[]
+
+  @@map("project_tags")
+}
+
+model Transaction {
+  id            String          @id @default(uuid())
+  date          DateTime
+  description   String          // Nội dung / Diễn giải
+  type          TransactionType // Thu / Chi
+  paymentMethod PaymentMethod   @default(MAIN_BANK_MB)
+  amount        Decimal         @db.Decimal(15, 2) // Số tiền
+
+  // Chi tiết vật tư / hàng hóa (nếu có từ file mẫu)
+  quantity      Decimal?        @db.Decimal(10, 2) // Số lượng
+  unit          String?         // ĐVT (Cây, Bao, Kg, Lít...)
+  unitPrice     Decimal?        @db.Decimal(15, 2) // Đơn giá
+
+  // Đối tác & Giao dịch viên
+  recipientInfo String?         // Người nhận / TK Đích (Ngân hàng, STK, Tên)
+  createdById   String
+  createdBy     User            @relation(fields: [createdById], references: [id])
+
+  // Phân loại dự án & danh mục
+  projectTagId  String?
+  projectTag    ProjectTag?     @relation(fields: [projectTagId], references: [id])
+  categoryId    String?
+  category      Category?       @relation(fields: [categoryId], references: [id])
+
+  note          String?         // Ghi chú thêm
+
+  // Lưu trữ chứng từ bill & AI Metadata
+  billImageUrl  String?         // Đường dẫn ảnh hóa đơn
+  aiConfidence  Float?          // Độ tin cậy (0 - 100)
+  isAiParsed    Boolean         @default(false)
+  rawAiData     Json?           // Metadata JSON do Gemini trả về
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@map("transactions")
+}
+
+model AppSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique // INITIAL_CASH, INITIAL_MB_BANK, FARM_NAME...
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("app_settings")
+}
