@@ -434,25 +434,24 @@ export function App() {
               )}
             </button>
 
-            {/* Breadcrumb Navigation: HT FARM > Tên màn hình */}
-            <div className="flex items-center space-x-2 text-xs">
-              <span className="font-extrabold text-slate-900 hidden sm:inline">HT FARM</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400 hidden sm:inline" />
-              <div className="flex items-center space-x-1.5 font-bold text-[#15803d] bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-                {activeTab === 'journal' ? (
-                  <>
-                    <FileSpreadsheet className="w-3.5 h-3.5 shrink-0" />
-                    <span className="hidden sm:inline">Sổ Kế Toán Thu Chi (Mẫu 06.1/BCTC)</span>
-                    <span className="inline sm:hidden">Sổ Thu Chi (06.1)</span>
-                  </>
-                ) : (
-                  <>
-                    <BarChart3 className="w-3.5 h-3.5 shrink-0" />
-                    <span className="hidden sm:inline">Báo Cáo & Biểu Đồ FinTech</span>
-                    <span className="inline sm:hidden">Báo Cáo</span>
-                  </>
-                )}
-              </div>
+            {/* Đường phân cách nhẹ giữa nút Sidebar và Tiêu đề trang */}
+            <div className="h-5 w-px bg-slate-200 hidden lg:block" />
+
+            {/* Tiêu đề phân hệ / Màn hình làm việc hiện tại (Phương án 1: Bỏ trùng lặp HT FARM) */}
+            <div className="flex items-center space-x-1.5 font-bold text-[#15803d] bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200/80 shadow-2xs text-xs">
+              {activeTab === 'journal' ? (
+                <>
+                  <FileSpreadsheet className="w-4 h-4 shrink-0 text-[#15803d]" />
+                  <span className="hidden sm:inline">Sổ Kế Toán Thu Chi (Mẫu 06.1/BCTC)</span>
+                  <span className="inline sm:hidden">Sổ Thu Chi (06.1)</span>
+                </>
+              ) : (
+                <>
+                  <BarChart3 className="w-4 h-4 shrink-0 text-[#15803d]" />
+                  <span className="hidden sm:inline">Báo Cáo & Biểu Đồ FinTech</span>
+                  <span className="inline sm:hidden">Báo Cáo & Biểu Đồ</span>
+                </>
+              )}
             </div>
           </div>
 
