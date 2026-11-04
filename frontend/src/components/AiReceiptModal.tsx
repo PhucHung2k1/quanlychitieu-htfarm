@@ -328,9 +328,9 @@ export const AiReceiptModal: React.FC<AiReceiptModalProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Cột trái: Ảnh hóa đơn */}
               <div className="bg-slate-100 rounded-xl p-3 border border-slate-200 flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-slate-700 uppercase">Ảnh Chứng Từ Đính Kèm</span>
-                  <span className="text-xs text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full font-medium">
+                <div className="flex items-center justify-between mb-2 gap-2">
+                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wider whitespace-nowrap shrink-0">Ảnh Chứng Từ Đính Kèm</span>
+                  <span className="text-xs text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full font-medium whitespace-nowrap shrink-0">
                     Độ tin cậy AI: {parsedData.confidence}%
                   </span>
                 </div>

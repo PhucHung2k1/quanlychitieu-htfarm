@@ -173,7 +173,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
       />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-10 flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-10 flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="px-5 py-4 bg-gradient-to-r from-slate-50 via-white to-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-3">
@@ -373,31 +373,31 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             {/* Cột Phải: Ảnh Hóa Đơn / Chứng Từ */}
             {billSrc && (
               <div className="lg:col-span-5 flex flex-col space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-[#15803d]" />
-                    Ảnh chứng từ đính kèm
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 whitespace-nowrap shrink-0">
+                    <FileText className="w-3.5 h-3.5 text-[#15803d] shrink-0" />
+                    <span>Ảnh chứng từ đính kèm</span>
                   </span>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => onViewBill && onViewBill(transaction.billImageUrl!)}
-                      className="h-7 px-2 text-[11px] text-[#15803d] hover:bg-emerald-50 font-semibold"
+                      className="h-7 px-2 text-[11px] text-[#15803d] hover:bg-emerald-50 font-semibold whitespace-nowrap shrink-0 flex items-center"
                     >
-                      <ExternalLink className="w-3 h-3 mr-1" />
-                      Phóng to
+                      <ExternalLink className="w-3 h-3 mr-1 shrink-0" />
+                      <span className="whitespace-nowrap">Phóng to</span>
                     </Button>
                     <a
                       href={billSrc}
                       target="_blank"
                       rel="noopener noreferrer"
                       download
-                      className="inline-flex items-center h-7 px-2 rounded-md text-[11px] font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
+                      className="inline-flex items-center h-7 px-2 rounded-md text-[11px] font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition whitespace-nowrap shrink-0"
                       title="Tải ảnh về máy"
                     >
-                      <Download className="w-3 h-3 mr-1" />
-                      Tải về
+                      <Download className="w-3 h-3 mr-1 shrink-0" />
+                      <span className="whitespace-nowrap">Tải về</span>
                     </a>
                   </div>
                 </div>
