@@ -1,14 +1,16 @@
-import React, { useMemo } from 'react';
-import { Transaction, SummaryData, ProjectTag } from '../types';
+import React, { useMemo, useState } from 'react';
+import { Transaction, SummaryData, ProjectTag, Category } from '../types';
 import {
   ComposedChart,
+  BarChart,
+  AreaChart,
+  Area,
   Bar,
   Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   LabelList,
   PieChart,
@@ -17,11 +19,11 @@ import {
   RadialBarChart,
   RadialBar,
   PolarAngleAxis,
+  ReferenceLine,
 } from 'recharts';
 import {
   TrendingUp,
   TrendingDown,
-  Landmark,
   Calendar,
   ArrowUpRight,
   ArrowDownRight,
@@ -31,13 +33,20 @@ import {
   CreditCard,
   Table as TableIcon,
   Activity,
-  ShieldCheck,
   Building2,
   Wallet,
   Layers,
   Warehouse,
   Sprout,
-  Percent,
+  Wheat,
+  Users,
+  Zap,
+  Wrench,
+  Utensils,
+  MoreHorizontal,
+  Sparkles,
+  CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
@@ -53,6 +62,7 @@ interface AnalyticsPageProps {
   transactions: Transaction[];
   summary: SummaryData | null;
   projectTags: ProjectTag[];
+  categories?: Category[];
   selectedTagId: string;
   setSelectedTagId: (id: string) => void;
   selectedMonth: string;
@@ -88,15 +98,25 @@ const CHANNEL_COLORS = {
 export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
   transactions,
   summary,
-  projectTags,
-  selectedTagId,
-  setSelectedTagId,
+  projectTags: _projectTags,
+  categories: _categories,
+  selectedTagId: _selectedTagId,
+  setSelectedTagId: _setSelectedTagId,
   selectedMonth,
   setSelectedMonth,
   selectedYear,
   setSelectedYear,
 }) => {
-  // 1. Dữ liệu xu hướng thu - chi theo tháng (đầy đủ từ T5 đến T10, bao gồm cả T8 gần bằng 0)
+  // 3 Chế độ hiển thị biểu đồ dòng tiền chính
+  const [chartType, setChartType] = useState<'composed' | 'area' | 'net'>('composed');
+
+  // Tab chuyển đổi khối Donut (Kênh thanh toán vs Danh mục)
+  const [donutTab, setDonutTab] = useState<'channel' | 'category'>('channel');
+
+  // Tab chuyển đổi khối Phân bổ chi phí (Dự án vs Danh mục)
+  const [breakdownTab, setBreakdownTab] = useState<'project' | 'category'>('project');
+
+  // 1. Dữ liệu xu hướng thu - chi theo tháng (đầy đủ từ T5 đến T10)
   const monthlyData = useMemo(() => {
     const monthSet = new Set<number>([5, 6, 7, 8, 9, 10]);
 
@@ -170,7 +190,76 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     return Array.from(map.values()).sort((a, b) => b.value - a.value);
   }, [transactions]);
 
-  // 3. Dữ liệu theo Kênh Thanh Toán
+  // 3. Dữ liệu chi phí theo Danh mục thực tế (Vật tư, Thức ăn chăn nuôi, Nhân công...)
+  const categoryChartData = useMemo(() => {
+    const map = new Map<
+      string,
+      { name: string; value: number; count: number; icon: string; color: string }
+    >();
+
+    const CATEGORY_META: Record<string, { icon: string; color: string }> = {
+      'Vật tư & Cây giống': { icon: 'Sprout', color: '#16a34a' },
+      'Thức ăn chăn nuôi & Thuốc': { icon: 'Wheat', color: '#d97706' },
+      'Nhân công & Thù lao': { icon: 'Users', color: '#2563eb' },
+      'Điện nước & Nhiên liệu': { icon: 'Zap', color: '#0891b2' },
+      'Sửa chữa & Thiết bị': { icon: 'Wrench', color: '#7c3aed' },
+      'Ăn uống & Tiếp khách': { icon: 'Utensils', color: '#ea580c' },
+      'Chi phí khác': { icon: 'MoreHorizontal', color: '#64748b' },
+    };
+
+    const inferCategoryName = (tx: Transaction): string => {
+      if (tx.category?.name) return tx.category.name;
+      const desc = (tx.description || '').toLowerCase();
+      if (desc.includes('gà') || desc.includes('cám') || desc.includes('thuốc') || desc.includes('thức ăn')) {
+        return 'Thức ăn chăn nuôi & Thuốc';
+      }
+      if (desc.includes('cây') || desc.includes('phân') || desc.includes('giống') || desc.includes('bạt') || desc.includes('ống') || desc.includes('vật tư')) {
+        return 'Vật tư & Cây giống';
+      }
+      if (desc.includes('công') || desc.includes('lương') || desc.includes('thợ') || desc.includes('thù lao') || desc.includes('bảo vệ')) {
+        return 'Nhân công & Thù lao';
+      }
+      if (desc.includes('điện') || desc.includes('nước') || desc.includes('xăng') || desc.includes('dầu')) {
+        return 'Điện nước & Nhiên liệu';
+      }
+      if (desc.includes('sửa') || desc.includes('máy') || desc.includes('bơm') || desc.includes('thiết bị') || desc.includes('thay thế')) {
+        return 'Sửa chữa & Thiết bị';
+      }
+      if (desc.includes('ăn') || desc.includes('cơm') || desc.includes('tiếp khách') || desc.includes('uống') || desc.includes('liên hoan')) {
+        return 'Ăn uống & Tiếp khách';
+      }
+      return 'Chi phí khác';
+    };
+
+    transactions.forEach((tx) => {
+      if (tx.type === 'EXPENSE') {
+        const name = inferCategoryName(tx);
+        const amt = Math.abs(Number(tx.amount) || 0);
+        const meta = CATEGORY_META[name] || { icon: 'MoreHorizontal', color: '#64748b' };
+        const current = map.get(name) || { name, value: 0, count: 0, icon: meta.icon, color: meta.color };
+        current.value += amt;
+        current.count += 1;
+        map.set(name, current);
+      }
+    });
+
+    return Array.from(map.values()).sort((a, b) => b.value - a.value);
+  }, [transactions]);
+
+  const categoryDonutList = useMemo(() => {
+    return categoryChartData.map((c) => ({
+      name: c.name,
+      value: c.value,
+      color: c.color,
+      icon: c.icon,
+    }));
+  }, [categoryChartData]);
+
+  const categoryTotalExpense = useMemo(() => {
+    return categoryChartData.reduce((acc, c) => acc + c.value, 0);
+  }, [categoryChartData]);
+
+  // 4. Dữ liệu theo Kênh Thanh Toán
   const channelData = useMemo(() => {
     let mbExpense = 0;
     let cashExpense = 0;
@@ -196,7 +285,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     return { list, total };
   }, [transactions]);
 
-  // 4. Top 5 khoản chi lớn nhất
+  // 5. Top 5 khoản chi lớn nhất
   const topExpenses = useMemo(() => {
     return [...transactions]
       .filter((t) => t.type === 'EXPENSE')
@@ -226,7 +315,55 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     },
   ];
 
-  // Custom Tooltip cho ComposedChart
+  // 6. FinTech Smart Insights (Chỉ số thông minh tóm tắt)
+  const insights = useMemo(() => {
+    const activeMonths = monthlyData.filter((d) => d.income > 0 || d.expense > 0);
+    const monthCount = activeMonths.length || 1;
+    const avgExpense = Math.round(monthlyTotals.expense / monthCount);
+    const avgIncome = Math.round(monthlyTotals.income / monthCount);
+
+    const bestMonth = [...monthlyData].sort((a, b) => b.net - a.net)[0];
+    const peakExpenseMonth = [...monthlyData].sort((a, b) => b.expense - a.expense)[0];
+
+    const mbPercent =
+      totalExpense > 0
+        ? Math.round(((summary?.channels?.mbBank?.expense ?? 0) / totalExpense) * 100)
+        : 0;
+
+    return {
+      avgExpense,
+      avgIncome,
+      bestMonth,
+      peakExpenseMonth,
+      activeMonthsCount: monthCount,
+      mbPercent,
+    };
+  }, [monthlyData, monthlyTotals, totalExpense, summary]);
+
+  // Giới hạn trục Y linh hoạt
+  const maxIncomeExpense = useMemo(() => {
+    let max = 0;
+    monthlyData.forEach((d) => {
+      if (d.income > max) max = d.income;
+      if (d.expense > max) max = d.expense;
+    });
+    if (max === 0) return 100_000_000;
+    return Math.ceil((max * 1.15) / 20_000_000) * 20_000_000;
+  }, [monthlyData]);
+
+  const netRange = useMemo(() => {
+    let min = 0;
+    let max = 0;
+    monthlyData.forEach((d) => {
+      if (d.net < min) min = d.net;
+      if (d.net > max) max = d.net;
+    });
+    const absMax = Math.max(Math.abs(min), Math.abs(max), 30_000_000);
+    const bound = Math.ceil((absMax * 1.25) / 20_000_000) * 20_000_000;
+    return { min: -bound, max: bound };
+  }, [monthlyData]);
+
+  // Tooltip cho Cột kép & Miền sóng
   const CustomChartTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -254,7 +391,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
             </div>
             <div className="flex items-center justify-between text-slate-600">
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#b91c1c]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#dc2626]" />
                 <span>Chi ra (-):</span>
               </span>
               <strong className="text-rose-700 tabular-nums font-bold">
@@ -262,14 +399,58 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
               </strong>
             </div>
             <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-slate-600 font-bold">Chênh lệch:</span>
+              <span className="text-slate-600 font-bold">Chênh lệch ròng:</span>
               <strong
                 className={`tabular-nums font-black ${
                   diff >= 0 ? 'text-[#15803d]' : 'text-rose-600'
                 }`}
               >
-                {formatCurrency(diff)}
+                {diff >= 0 ? `+${formatCurrency(diff)}` : formatCurrency(diff)}
               </strong>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Tooltip chuyên dụng cho Thặng Dư Ròng
+  const CustomNetTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      const net = data.net || 0;
+      const isPositive = net >= 0;
+
+      return (
+        <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xl text-xs space-y-2 min-w-[220px]">
+          <div className="font-bold text-slate-800 border-b border-slate-100 pb-1.5 flex items-center justify-between">
+            <span className="text-xs font-black">{data.monthName} / {data.year}</span>
+            <Badge
+              variant="outline"
+              className={`text-[10px] py-0 px-2 font-bold ${
+                isPositive
+                  ? 'border-emerald-200 bg-emerald-50 text-[#15803d]'
+                  : 'border-rose-200 bg-rose-50 text-rose-700'
+              }`}
+            >
+              {isPositive ? 'Thặng dư (+)' : 'Thâm hụt (-)'}
+            </Badge>
+          </div>
+          <div className="space-y-1.5 font-medium">
+            <div className="flex items-center justify-between text-slate-600">
+              <span>Chênh lệch ròng:</span>
+              <strong
+                className={`tabular-nums font-black text-sm ${
+                  isPositive ? 'text-[#15803d]' : 'text-rose-600'
+                }`}
+              >
+                {isPositive ? `+${formatCurrency(net)}` : formatCurrency(net)}
+              </strong>
+            </div>
+            <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+              <span>Thu: <strong className="text-[#15803d] font-bold">{formatShortCurrency(data.income)}</strong></span>
+              <span>Chi: <strong className="text-rose-700 font-bold">{formatShortCurrency(data.expense)}</strong></span>
             </div>
           </div>
         </div>
@@ -286,6 +467,35 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
     return <Warehouse className="w-4 h-4 text-slate-600" />;
   };
 
+  const getCategoryIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'Sprout':
+        return <Sprout className="w-4 h-4 text-emerald-600" />;
+      case 'Wheat':
+        return <Wheat className="w-4 h-4 text-amber-600" />;
+      case 'Users':
+        return <Users className="w-4 h-4 text-blue-600" />;
+      case 'Zap':
+        return <Zap className="w-4 h-4 text-cyan-600" />;
+      case 'Wrench':
+        return <Wrench className="w-4 h-4 text-purple-600" />;
+      case 'Utensils':
+        return <Utensils className="w-4 h-4 text-orange-600" />;
+      default:
+        return <MoreHorizontal className="w-4 h-4 text-slate-500" />;
+    }
+  };
+
+  const availableMonths = [
+    { label: 'Tất cả tháng', value: '' },
+    { label: 'Tháng 5', value: '5' },
+    { label: 'Tháng 6', value: '6' },
+    { label: 'Tháng 7', value: '7' },
+    { label: 'Tháng 8', value: '8' },
+    { label: 'Tháng 9', value: '9' },
+    { label: 'Tháng 10', value: '10' },
+  ];
+
   return (
     <div className="space-y-6">
       {/* 1. HEADER TRANG & BỘ LỌC THỜI GIAN */}
@@ -298,6 +508,30 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
           <p className="text-xs text-slate-500 font-medium mt-1">
             Toàn cảnh dòng tiền, cân đối thanh khoản và cơ cấu chi phí toàn nông trại
           </p>
+
+          {/* Quick preset chips chọn nhanh tháng */}
+          <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-2 border-t border-slate-100">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">
+              Xem nhanh:
+            </span>
+            {availableMonths.map((m) => {
+              const isActive = (selectedMonth || '') === m.value;
+              return (
+                <button
+                  key={m.value || 'all'}
+                  type="button"
+                  onClick={() => setSelectedMonth(m.value)}
+                  className={`text-xs px-2.5 py-1 rounded-lg font-bold transition-all ${
+                    isActive
+                      ? 'bg-[#15803d] text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+                  }`}
+                >
+                  {m.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Bộ lọc tháng & năm đủ rộng, không cắt chữ */}
@@ -336,9 +570,9 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         </div>
       </Card>
 
-      {/* 2. 4 THẺ CHỈ SỐ KPI CHÍNH (ĐÃ ĐƯA TỒN QUỸ MB BANK LÊN ĐẦU, TÔNG MÀU SÁNG & SANG TRỌNG) */}
+      {/* 2. 4 THẺ CHỈ SỐ KPI CHÍNH */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Tồn Quỹ MB Bank (Đưa lên đầu, màu ngọc lục bảo tươi sáng & nổi bật) */}
+        {/* Card 1: Tồn Quỹ MB Bank */}
         <Card className="bg-gradient-to-br from-[#059669] via-[#047857] to-[#065f46] text-white border-0 rounded-2xl p-5 shadow-lg flex flex-col justify-between relative overflow-hidden group hover:shadow-xl transition-all duration-200">
           <div className="absolute -right-6 -top-6 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
 
@@ -459,129 +693,353 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         </Card>
       </div>
 
-      {/* 3. KHỐI BIỂU ĐỒ COMPOSED FINTECH & BẢNG CHI TIẾT THEO THÁNG (PHƯƠNG ÁN 1) */}
+      {/* 2.5. FINTECH SMART INSIGHTS BANNER (TÔNG SÁNG TRANG NHÃ & TƯƠI MÁT) */}
+      <Card className="bg-gradient-to-r from-emerald-50/90 via-teal-50/40 to-slate-50/80 border border-emerald-200/80 rounded-2xl p-4 shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-xl bg-white text-[#15803d] border border-emerald-200/80 flex items-center justify-center shadow-xs shrink-0">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs font-black uppercase tracking-wider text-[#15803d] flex items-center gap-1.5">
+                <span>FinTech Insights</span>
+                <span className="text-slate-300">·</span>
+                <span className="text-slate-700 font-bold">Phân Tích Hiệu Suất Tự Động</span>
+              </h4>
+              <p className="text-[11px] text-slate-500 font-medium mt-0.5">
+                Dựa trên {insights.activeMonthsCount} tháng hoạt động có phát sinh dòng tiền thực tế
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+            <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 shadow-2xs hover:border-emerald-200 transition">
+              <span className="text-[10px] text-slate-400 block font-medium">Chi trung bình / tháng</span>
+              <strong className="text-rose-600 font-bold tabular-nums text-xs">
+                {formatShortCurrency(insights.avgExpense)}
+              </strong>
+            </div>
+
+            <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 shadow-2xs hover:border-emerald-200 transition">
+              <span className="text-[10px] text-slate-400 block font-medium">Tháng thặng dư tốt nhất</span>
+              <strong className="text-[#15803d] font-bold tabular-nums text-xs">
+                {insights.bestMonth?.monthName} (+{formatShortCurrency(insights.bestMonth?.net || 0)})
+              </strong>
+            </div>
+
+            <div className="bg-white border border-slate-200/80 rounded-xl p-2.5 shadow-2xs hover:border-emerald-200 transition col-span-2 sm:col-span-1">
+              <span className="text-[10px] text-slate-400 block font-medium">Chi cao điểm nhất</span>
+              <strong className="text-amber-800 font-bold tabular-nums text-xs">
+                {insights.peakExpenseMonth?.monthName} ({formatShortCurrency(insights.peakExpenseMonth?.expense || 0)})
+              </strong>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* 3. KHỐI BIỂU ĐỒ CHÍNH VỚI BỘ CHUYỂN ĐỔI 3 DẠNG BIỂU ĐỒ (COMPOSED / AREA / NET) */}
       <Card className="bg-white p-5 sm:p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div>
-            <h3 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              <span>Xu Hướng Dòng Tiền Thu & Chi Theo Tháng</span>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-slate-900 tracking-tight">
+                {chartType === 'composed' && 'Xu Hướng Dòng Tiền Thu & Chi Theo Tháng'}
+                {chartType === 'area' && 'Biểu Đồ Miền Sóng Đôi (Dòng Tiền Luân Chuyển)'}
+                {chartType === 'net' && 'Biểu Đồ Thặng Dư & Chênh Lệch Dòng Tiền Ròng'}
+              </h3>
               <Badge variant="outline" className="text-[10px] py-0 px-2 border-emerald-200 bg-emerald-50 text-[#15803d] font-semibold">
-                FinTech Multi-layer
+                FinTech Multi-View
               </Badge>
-            </h3>
+            </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              So sánh cột Thu/Chi kết hợp đường sóng luân chuyển dòng tiền (Đơn vị: triệu VNĐ)
+              {chartType === 'composed' && 'So sánh trực quan cột Thu (+) và Chi (-) kết hợp đường xu hướng'}
+              {chartType === 'area' && 'Dải sóng mềm mại cho thấy rõ nhịp tăng giảm và độ phủ của dòng tiền qua thời gian'}
+              {chartType === 'net' && 'Thấy ngay tháng nào nông trại có lãi (thặng dư xanh) hoặc thâm hụt (cột đỏ)'}
             </p>
           </div>
 
-          <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-sm bg-[#15803d]" />
-              <span>Thu (+)</span>
-            </span>
-            <span className="text-slate-300">·</span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-sm bg-[#b91c1c]" />
-              <span>Chi (-)</span>
-            </span>
-            <span className="text-slate-300">·</span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-4 h-0.5 bg-[#16a34a] inline-block" />
-              <span>Nhịp Thu</span>
-            </span>
+          {/* BỘ CHUYỂN ĐỔI CHẾ ĐỘ BIỂU ĐỒ (CHART TYPE SWITCHER) */}
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0 self-start lg:self-auto">
+            <button
+              type="button"
+              onClick={() => setChartType('composed')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                chartType === 'composed'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <BarChart3 className="w-3.5 h-3.5 text-[#15803d]" />
+              <span>Cột Kép</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setChartType('area')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                chartType === 'area'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+              <span>Miền Sóng Đôi</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setChartType('net')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                chartType === 'net'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Thặng Dư Ròng</span>
+            </button>
           </div>
         </div>
 
-        {/* Khối ComposedChart hiện đại FinTech */}
+        {/* Khối hiển thị Biểu đồ linh hoạt */}
         <div className="h-80 w-full pt-2">
           {monthlyData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart
-                data={monthlyData}
-                margin={{ top: 22, right: 24, left: 16, bottom: 8 }}
-                barGap={6}
-                barCategoryGap="25%"
-              >
-                <defs>
-                  <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#16a34a" stopOpacity={0.95} />
-                    <stop offset="100%" stopColor="#15803d" stopOpacity={1} />
-                  </linearGradient>
-                  <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#dc2626" stopOpacity={0.95} />
-                    <stop offset="100%" stopColor="#b91c1c" stopOpacity={1} />
-                  </linearGradient>
-                </defs>
-
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis
-                  dataKey="month"
-                  stroke="#64748B"
-                  fontSize={12}
-                  tickLine={false}
-                  interval={0}
-                  dy={6}
-                />
-                <YAxis
-                  stroke="#64748B"
-                  fontSize={11}
-                  tickLine={false}
-                  ticks={[0, 75000000, 150000000, 225000000, 300000000]}
-                  domain={[0, 300000000]}
-                  tickFormatter={(val) => (val === 0 ? '0' : `${Math.round(val / 1_000_000)} tr`)}
-                />
-                <Tooltip content={<CustomChartTooltip />} />
-
-                {/* Cột Thu (+) */}
-                <Bar
-                  dataKey="income"
-                  name="Thu (+)"
-                  fill="url(#incomeGradient)"
-                  minPointSize={3}
-                  radius={[4, 4, 0, 0]}
+              {chartType === 'composed' ? (
+                /* CHẾ ĐỘ 1: COMPOSED BAR + LINE */
+                <ComposedChart
+                  data={monthlyData}
+                  margin={{ top: 22, right: 24, left: 16, bottom: 8 }}
+                  barGap={6}
+                  barCategoryGap="25%"
                 >
-                  <LabelList
+                  <defs>
+                    <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#16a34a" stopOpacity={0.95} />
+                      <stop offset="100%" stopColor="#15803d" stopOpacity={1} />
+                    </linearGradient>
+                    <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#ef4444" stopOpacity={0.95} />
+                      <stop offset="100%" stopColor="#b91c1c" stopOpacity={1} />
+                    </linearGradient>
+                  </defs>
+
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis
+                    dataKey="month"
+                    stroke="#64748B"
+                    fontSize={12}
+                    tickLine={false}
+                    interval={0}
+                    dy={6}
+                  />
+                  <YAxis
+                    stroke="#64748B"
+                    fontSize={11}
+                    tickLine={false}
+                    domain={[0, maxIncomeExpense]}
+                    tickFormatter={(val) => formatShortCurrency(val)}
+                  />
+                  <Tooltip content={<CustomChartTooltip />} />
+
+                  {/* Cột Thu (+) */}
+                  <Bar
                     dataKey="income"
-                    position="top"
-                    formatter={(val: any) => `${Math.round(Number(val) / 1_000_000)} tr`}
-                    style={{ fontSize: '11px', fontWeight: 'bold', fill: '#15803d' }}
-                  />
-                </Bar>
+                    name="Thu (+)"
+                    fill="url(#incomeGradient)"
+                    minPointSize={3}
+                    radius={[5, 5, 0, 0]}
+                  >
+                    <LabelList
+                      dataKey="income"
+                      position="top"
+                      formatter={(val: any) =>
+                        Number(val) > 0 ? `${Math.round(Number(val) / 1_000_000)} tr` : ''
+                      }
+                      style={{ fontSize: '11px', fontWeight: 'bold', fill: '#15803d' }}
+                    />
+                  </Bar>
 
-                {/* Cột Chi (-) */}
-                <Bar
-                  dataKey="expense"
-                  name="Chi (-)"
-                  fill="url(#expenseGradient)"
-                  minPointSize={3}
-                  radius={[4, 4, 0, 0]}
-                >
-                  <LabelList
+                  {/* Cột Chi (-) */}
+                  <Bar
                     dataKey="expense"
-                    position="top"
-                    formatter={(val: any) => `${Math.round(Number(val) / 1_000_000)} tr`}
-                    style={{ fontSize: '11px', fontWeight: 'bold', fill: '#b91c1c' }}
-                  />
-                </Bar>
+                    name="Chi (-)"
+                    fill="url(#expenseGradient)"
+                    minPointSize={3}
+                    radius={[5, 5, 0, 0]}
+                  >
+                    <LabelList
+                      dataKey="expense"
+                      position="top"
+                      formatter={(val: any) =>
+                        Number(val) > 0 ? `${Math.round(Number(val) / 1_000_000)} tr` : ''
+                      }
+                      style={{ fontSize: '11px', fontWeight: 'bold', fill: '#b91c1c' }}
+                    />
+                  </Bar>
 
-                {/* Đường cong FinTech Smooth Curve theo nhịp Doanh Thu */}
-                <Line
-                  type="monotone"
-                  dataKey="income"
-                  name="Nhịp Thu"
-                  stroke="#16a34a"
-                  strokeWidth={2.5}
-                  strokeDasharray="4 4"
-                  dot={{ r: 4, fill: '#ffffff', stroke: '#15803d', strokeWidth: 2 }}
-                  activeDot={{ r: 6, fill: '#15803d', stroke: '#ffffff', strokeWidth: 2 }}
-                />
-              </ComposedChart>
+                  {/* Đường cong FinTech Smooth Curve theo nhịp Doanh Thu */}
+                  <Line
+                    type="monotone"
+                    dataKey="income"
+                    name="Nhịp Thu"
+                    stroke="#16a34a"
+                    strokeWidth={2.5}
+                    strokeDasharray="4 4"
+                    dot={{ r: 4, fill: '#ffffff', stroke: '#15803d', strokeWidth: 2 }}
+                    activeDot={{ r: 6, fill: '#15803d', stroke: '#ffffff', strokeWidth: 2 }}
+                  />
+                </ComposedChart>
+              ) : chartType === 'area' ? (
+                /* CHẾ ĐỘ 2: SMOOTH GRADIENT DUAL AREA CHART */
+                <AreaChart
+                  data={monthlyData}
+                  margin={{ top: 22, right: 24, left: 16, bottom: 8 }}
+                >
+                  <defs>
+                    <linearGradient id="areaIncomeGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.45} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
+                    </linearGradient>
+                    <linearGradient id="areaExpenseGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.45} />
+                      <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis
+                    dataKey="month"
+                    stroke="#64748B"
+                    fontSize={12}
+                    tickLine={false}
+                    interval={0}
+                    dy={6}
+                  />
+                  <YAxis
+                    stroke="#64748B"
+                    fontSize={11}
+                    tickLine={false}
+                    domain={[0, maxIncomeExpense]}
+                    tickFormatter={(val) => formatShortCurrency(val)}
+                  />
+                  <Tooltip content={<CustomChartTooltip />} />
+
+                  <Area
+                    type="monotone"
+                    dataKey="income"
+                    name="Thu (+)"
+                    stroke="#059669"
+                    strokeWidth={2.5}
+                    fillOpacity={1}
+                    fill="url(#areaIncomeGradient)"
+                    activeDot={{ r: 6, fill: '#059669', stroke: '#ffffff', strokeWidth: 2 }}
+                  />
+
+                  <Area
+                    type="monotone"
+                    dataKey="expense"
+                    name="Chi (-)"
+                    stroke="#e11d48"
+                    strokeWidth={2.5}
+                    fillOpacity={1}
+                    fill="url(#areaExpenseGradient)"
+                    activeDot={{ r: 6, fill: '#e11d48', stroke: '#ffffff', strokeWidth: 2 }}
+                  />
+                </AreaChart>
+              ) : (
+                /* CHẾ ĐỘ 3: WATERFALL / NET PROFIT BAR CHART */
+                <BarChart
+                  data={monthlyData}
+                  margin={{ top: 22, right: 24, left: 16, bottom: 8 }}
+                  barCategoryGap="30%"
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <ReferenceLine y={0} stroke="#94a3b8" strokeWidth={1.5} strokeDasharray="4 4" />
+                  <XAxis
+                    dataKey="month"
+                    stroke="#64748B"
+                    fontSize={12}
+                    tickLine={false}
+                    interval={0}
+                    dy={6}
+                  />
+                  <YAxis
+                    stroke="#64748B"
+                    fontSize={11}
+                    tickLine={false}
+                    domain={[netRange.min, netRange.max]}
+                    tickFormatter={(val) => formatShortCurrency(val)}
+                  />
+                  <Tooltip content={<CustomNetTooltip />} />
+
+                  <Bar dataKey="net" name="Chênh lệch ròng" radius={[4, 4, 4, 4]}>
+                    {monthlyData.map((entry, index) => (
+                      <Cell
+                        key={`cell-net-${index}`}
+                        fill={entry.net >= 0 ? '#15803d' : '#e11d48'}
+                      />
+                    ))}
+                    <LabelList
+                      dataKey="net"
+                      position="top"
+                      formatter={(val: any) =>
+                        `${Number(val) >= 0 ? '+' : ''}${Math.round(Number(val) / 1_000_000)} tr`
+                      }
+                      style={{ fontSize: '11px', fontWeight: 'bold' }}
+                    />
+                  </Bar>
+                </BarChart>
+              )}
             </ResponsiveContainer>
           ) : (
             <div className="h-full flex items-center justify-center text-xs text-slate-400">
               Chưa có dữ liệu theo tháng
             </div>
           )}
+        </div>
+
+        {/* Chú thích biểu đồ */}
+        <div className="flex flex-wrap items-center justify-between text-xs font-semibold text-slate-500 pt-2 border-t border-slate-100">
+          <div className="flex items-center space-x-3">
+            {chartType !== 'net' ? (
+              <>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-[#15803d]" />
+                  <span>Thu vào (+)</span>
+                </span>
+                <span className="text-slate-300">·</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-[#b91c1c]" />
+                  <span>Chi ra (-)</span>
+                </span>
+                {chartType === 'composed' && (
+                  <>
+                    <span className="text-slate-300">·</span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-4 h-0.5 bg-[#16a34a] inline-block" />
+                      <span>Nhịp Doanh Thu</span>
+                    </span>
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-[#15803d]" />
+                  <span>Thặng Dư (Thu vượt Chi)</span>
+                </span>
+                <span className="text-slate-300">·</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-sm bg-[#e11d48]" />
+                  <span>Thâm Hụt (Chi vượt Thu)</span>
+                </span>
+              </>
+            )}
+          </div>
+          <span className="text-[11px] text-slate-400 font-normal">
+            *Đơn vị quy đổi: triệu VNĐ (tr)
+          </span>
         </div>
 
         {/* BẢNG CHI TIẾT THEO THÁNG */}
@@ -654,7 +1112,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
             </table>
           </div>
 
-          {/* 2. Mobile Card List View (Hiện trên màn hình nhỏ dưới sm) */}
+          {/* 2. Mobile Card List View */}
           <div className="block sm:hidden divide-y divide-slate-100 bg-white">
             {monthlyData.map((row) => (
               <div key={row.month} className="py-3 space-y-2">
@@ -716,7 +1174,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         </div>
       </Card>
 
-      {/* 4. HÀNG 2: THƯỚC ĐO SỨC KHỎE TÀI CHÍNH (GAUGE) & PHÂN BỔ KÊNH THANH TOÁN FINTECH */}
+      {/* 4. HÀNG 2: THƯỚC ĐO SỨC KHỎE TÀI CHÍNH & PHÂN BỔ KÊNH / DANH MỤC (DONUT TAB) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Khối A: Thước Đo Sức Khỏe Tài Chính (Radial Health Gauge) */}
         <Card className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
@@ -788,7 +1246,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
                   <strong className="text-slate-800 text-xs tabular-nums font-bold">
                     {directExpensePercent}%
                   </strong>
-                  <span className="text-[10px] text-slate-400 block truncate mt-0.5">Vật tư, phân bón</span>
+                  <span className="text-[10px] text-slate-400 block truncate mt-0.5">Vật tư, giống, công</span>
                 </div>
                 <div className="p-2.5 rounded-lg border border-slate-100 bg-white shadow-2xs">
                   <span className="text-slate-400 block font-medium">TK Chi Hộ</span>
@@ -802,17 +1260,49 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
           </div>
         </Card>
 
-        {/* Khối B: Biểu đồ Kênh Thanh Toán Nested Donut với Tâm Động */}
+        {/* Khối B: Biểu đồ Donut với Tab Chuyển Đổi: Kênh Thanh Toán vs Danh Mục Chi Tiêu */}
         <Card className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h3 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center space-x-2">
                 <CreditCard className="w-4 h-4 text-slate-700" />
-                <span>Phân Bổ Kênh Thanh Toán (FinTech Donut)</span>
+                <span>
+                  {donutTab === 'channel'
+                    ? 'Phân Bổ Kênh Thanh Toán'
+                    : 'Cơ Cấu Chi Phí Theo Danh Mục'}
+                </span>
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Tỷ trọng chi tiêu phân chia theo tài khoản ngân hàng và tiền mặt
+                {donutTab === 'channel'
+                  ? 'Tỷ trọng chi tiêu theo tài khoản MB Bank và tiền mặt'
+                  : 'Tỷ trọng thực tế các nhóm vật tư, thức ăn, nhân công'}
               </p>
+            </div>
+
+            {/* Tab switcher giữa Kênh vs Danh mục */}
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 shrink-0">
+              <button
+                type="button"
+                onClick={() => setDonutTab('channel')}
+                className={`text-[11px] font-bold px-2.5 py-1 rounded-md transition ${
+                  donutTab === 'channel'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Kênh Chi
+              </button>
+              <button
+                type="button"
+                onClick={() => setDonutTab('category')}
+                className={`text-[11px] font-bold px-2.5 py-1 rounded-md transition ${
+                  donutTab === 'category'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Danh Mục
+              </button>
             </div>
           </div>
 
@@ -822,7 +1312,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={channelData.list}
+                    data={donutTab === 'channel' ? channelData.list : categoryDonutList}
                     cx="50%"
                     cy="50%"
                     innerRadius={55}
@@ -830,9 +1320,11 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
                     paddingAngle={3}
                     dataKey="value"
                   >
-                    {channelData.list.map((entry, index) => (
-                      <Cell key={`cell-ch-${index}`} fill={entry.color} />
-                    ))}
+                    {(donutTab === 'channel' ? channelData.list : categoryDonutList).map(
+                      (entry, index) => (
+                        <Cell key={`cell-donut-${index}`} fill={entry.color} />
+                      )
+                    )}
                   </Pie>
                   <Tooltip
                     formatter={(val: any) => [formatCurrency(Number(val)), 'Chi']}
@@ -847,86 +1339,213 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Tổng Chi Kênh
+                  {donutTab === 'channel' ? 'Tổng Chi Kênh' : 'Tổng Chi Mục'}
                 </span>
                 <span className="text-sm font-black text-slate-900 tabular-nums">
-                  {formatShortCurrency(channelData.total)}
+                  {formatShortCurrency(
+                    donutTab === 'channel' ? channelData.total : categoryTotalExpense
+                  )}
                 </span>
               </div>
             </div>
 
-            {/* Chi tiết từng kênh */}
-            <div className="sm:col-span-6 space-y-2 text-xs">
-              {channelData.list.map((ch) => {
-                const pct = channelData.total > 0 ? ((ch.value / channelData.total) * 100).toFixed(1) : '0';
-                return (
-                  <div key={ch.name} className="p-2.5 rounded-lg border border-slate-100 bg-slate-50/50 space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-slate-700 flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: ch.color }} />
-                        <span>{ch.name}</span>
-                      </span>
-                      <strong className="text-slate-900 tabular-nums font-bold">{pct}%</strong>
-                    </div>
-                    <div className="flex justify-between items-center text-[11px] text-slate-500 font-mono">
-                      <span>{formatCurrency(ch.value)}</span>
-                    </div>
-                  </div>
-                );
-              })}
+            {/* Chi tiết từng mục của Donut */}
+            <div className="sm:col-span-6 space-y-1.5 text-xs max-h-48 overflow-y-auto pr-1">
+              {donutTab === 'channel'
+                ? channelData.list.map((ch) => {
+                    const pct =
+                      channelData.total > 0
+                        ? ((ch.value / channelData.total) * 100).toFixed(1)
+                        : '0';
+                    return (
+                      <div
+                        key={ch.name}
+                        className="p-2 rounded-lg border border-slate-100 bg-slate-50/50 space-y-0.5"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-slate-700 flex items-center gap-1.5 truncate">
+                            <span
+                              className="w-2.5 h-2.5 rounded-full inline-block shrink-0"
+                              style={{ backgroundColor: ch.color }}
+                            />
+                            <span className="truncate">{ch.name}</span>
+                          </span>
+                          <strong className="text-slate-900 tabular-nums font-bold shrink-0">
+                            {pct}%
+                          </strong>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] text-slate-500 font-mono">
+                          <span>{formatCurrency(ch.value)}</span>
+                        </div>
+                      </div>
+                    );
+                  })
+                : categoryDonutList.slice(0, 5).map((cat) => {
+                    const pct =
+                      categoryTotalExpense > 0
+                        ? ((cat.value / categoryTotalExpense) * 100).toFixed(1)
+                        : '0';
+                    return (
+                      <div
+                        key={cat.name}
+                        className="p-2 rounded-lg border border-slate-100 bg-slate-50/50 space-y-0.5"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-slate-700 flex items-center gap-1.5 truncate">
+                            <span
+                              className="w-2.5 h-2.5 rounded-full inline-block shrink-0"
+                              style={{ backgroundColor: cat.color }}
+                            />
+                            <span className="truncate">{cat.name}</span>
+                          </span>
+                          <strong className="text-slate-900 tabular-nums font-bold shrink-0">
+                            {pct}%
+                          </strong>
+                        </div>
+                        <div className="flex justify-between items-center text-[11px] text-slate-500 font-mono">
+                          <span>{formatCurrency(cat.value)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
             </div>
           </div>
         </Card>
       </div>
 
-      {/* 5. HÀNG 3: CƠ CẤU CHI PHÍ DỰ ÁN DẠNG FINTECH CARDS & TOP 5 KHOẢN CHI */}
+      {/* 5. HÀNG 3: CƠ CẤU CHI PHÍ DỰ ÁN & DANH MỤC THỰC TẾ + TOP 5 KHOẢN CHI */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Phân Tích Chi Phí Theo Dự Án / Chi Nhánh */}
+        {/* Phân Tích Chi Phí Theo Dự Án / Danh Mục (Tabs) */}
         <Card className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h3 className="text-base font-extrabold text-slate-900 tracking-tight flex items-center space-x-2">
                 <PieIcon className="w-4 h-4 text-[#15803d]" />
-                <span>Cơ Cấu Chi Phí Theo Dự Án / Chi Nhánh</span>
+                <span>
+                  {breakdownTab === 'project'
+                    ? 'Cơ Cấu Chi Phí Theo Chi Nhánh / Dự Án'
+                    : 'Chi Tiết Cơ Cấu Theo Danh Mục Vận Hành'}
+                </span>
               </h3>
               <p className="text-xs text-slate-500 font-medium">
-                Tỷ trọng chi tiêu giữa HTX Tâm Tín, Farm Gà và Chi phí chung
+                {breakdownTab === 'project'
+                  ? 'Tỷ trọng chi tiêu giữa HTX Tâm Tín, Farm Gà và Chi phí chung'
+                  : 'Bảng theo dõi các hạng mục vật tư, cây giống, thức ăn, thợ'}
               </p>
+            </div>
+
+            {/* Tab switch giữa Dự án vs Danh mục */}
+            <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 shrink-0">
+              <button
+                type="button"
+                onClick={() => setBreakdownTab('project')}
+                className={`text-[11px] font-bold px-2.5 py-1 rounded-md transition ${
+                  breakdownTab === 'project'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Theo Chi Nhánh
+              </button>
+              <button
+                type="button"
+                onClick={() => setBreakdownTab('category')}
+                className={`text-[11px] font-bold px-2.5 py-1 rounded-md transition ${
+                  breakdownTab === 'category'
+                    ? 'bg-white text-slate-900 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                Theo Danh Mục
+              </button>
             </div>
           </div>
 
           <div className="space-y-3 pt-1">
-            {projectChartData.map((p) => {
-              const pct = totalExpense > 0 ? ((p.value / totalExpense) * 100).toFixed(1) : '0';
-              const icon = getBranchIcon(p.name);
-              return (
-                <div key={p.name} className="p-3 bg-slate-50/70 border border-slate-100 rounded-xl space-y-2 hover:bg-slate-50 transition">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2.5 truncate">
-                      <div className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
-                        {icon}
-                      </div>
-                      <span className="font-bold text-xs text-slate-800 truncate">{p.name}</span>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <span className="text-xs font-black text-slate-900 tabular-nums">
-                        {formatCurrency(p.value)}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-medium ml-1.5 font-mono">
-                        ({pct}%)
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="w-full bg-slate-200/80 h-2 rounded-full overflow-hidden">
+            {breakdownTab === 'project'
+              ? projectChartData.map((p) => {
+                  const pct = totalExpense > 0 ? ((p.value / totalExpense) * 100).toFixed(1) : '0';
+                  const icon = getBranchIcon(p.name);
+                  return (
                     <div
-                      style={{ width: `${pct}%` }}
-                      className="bg-[#15803d] h-full rounded-full transition-all duration-500"
-                    />
-                  </div>
-                </div>
-              );
-            })}
+                      key={p.name}
+                      className="p-3 bg-slate-50/70 border border-slate-100 rounded-xl space-y-2 hover:bg-slate-50 transition"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2.5 truncate">
+                          <div className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
+                            {icon}
+                          </div>
+                          <div>
+                            <span className="font-bold text-xs text-slate-800 block truncate">
+                              {p.name}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium">
+                              {p.count} phiếu chi
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="text-xs font-black text-slate-900 tabular-nums">
+                            {formatCurrency(p.value)}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-medium ml-1.5 font-mono">
+                            ({pct}%)
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="w-full bg-slate-200/80 h-2 rounded-full overflow-hidden">
+                        <div
+                          style={{ width: `${pct}%` }}
+                          className="bg-[#15803d] h-full rounded-full transition-all duration-500"
+                        />
+                      </div>
+                    </div>
+                  );
+                })
+              : categoryChartData.map((c) => {
+                  const pct =
+                    totalExpense > 0 ? ((c.value / totalExpense) * 100).toFixed(1) : '0';
+                  const icon = getCategoryIcon(c.icon);
+                  return (
+                    <div
+                      key={c.name}
+                      className="p-3 bg-slate-50/70 border border-slate-100 rounded-xl space-y-2 hover:bg-slate-50 transition"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2.5 truncate">
+                          <div className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center shrink-0">
+                            {icon}
+                          </div>
+                          <div>
+                            <span className="font-bold text-xs text-slate-800 block truncate">
+                              {c.name}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium">
+                              {c.count} khoản chi
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="text-xs font-black text-slate-900 tabular-nums">
+                            {formatCurrency(c.value)}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-medium ml-1.5 font-mono">
+                            ({pct}%)
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="w-full bg-slate-200/80 h-2 rounded-full overflow-hidden">
+                        <div
+                          style={{ width: `${pct}%`, backgroundColor: c.color }}
+                          className="h-full rounded-full transition-all duration-500"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
           </div>
         </Card>
 
@@ -977,7 +1596,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
             </table>
           </div>
 
-          {/* 2. Mobile List View (Hiện trên mobile dưới sm) */}
+          {/* 2. Mobile List View */}
           <div className="block sm:hidden divide-y divide-slate-100 bg-white">
             {topExpenses.map((t) => (
               <div key={t.id} className="py-2.5 space-y-1.5">

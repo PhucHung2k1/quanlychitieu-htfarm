@@ -8,8 +8,6 @@ import {
   FolderTree,
   ChevronRight,
   X,
-  PanelLeftClose,
-  PanelLeft,
   Wallet,
   Sprout,
   Building2,
@@ -136,17 +134,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
             </div>
 
-            {/* Nút toggle thu gọn trên Desktop */}
-            {!isCollapsed && (
-              <button
-                onClick={onToggleCollapse}
-                title="Thu gọn sidebar"
-                className="hidden lg:flex p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
-              >
-                <PanelLeftClose className="w-4 h-4" />
-              </button>
-            )}
-
             {/* Nút đóng trên mobile */}
             <button
               onClick={onCloseMobile}
@@ -156,48 +143,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </button>
           </div>
 
-          {/* Nút mở rộng khi ở chế độ thu gọn trên Desktop */}
-          {isCollapsed && (
-            <div className="hidden lg:flex justify-center pt-2">
-              <button
-                onClick={onToggleCollapse}
-                title="Mở rộng sidebar"
-                className="p-2 text-slate-400 hover:text-[#15803d] hover:bg-emerald-50 rounded-xl transition"
-              >
-                <PanelLeft className="w-5 h-5" />
-              </button>
-            </div>
-          )}
-
-          {/* User Profile Card */}
-          {currentUser && (
-            <div
-              className={`my-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center transition-all ${
-                isCollapsed
-                  ? 'mx-auto p-2 w-12 h-12 justify-center'
-                  : 'mx-3 p-3 space-x-3'
-              }`}
-              title={`${currentUser.fullName} (${getUserRole(currentUser.username)})`}
-            >
-              <div className="w-9 h-9 rounded-lg bg-[#15803d] text-white font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0">
-                {getInitials(currentUser.fullName)}
-              </div>
-              {!isCollapsed && (
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-slate-900 text-xs truncate">
-                    {currentUser.fullName}
-                  </div>
-                  <div className="text-[10px] text-slate-500 font-medium truncate flex items-center gap-1 mt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#15803d]" />
-                    <span>{getUserRole(currentUser.username)}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Main Navigation Menu */}
-          <div className="px-3 space-y-1 mt-2">
+          <div className="px-3 space-y-1 mt-3">
             {!isCollapsed && (
               <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 Phân Hệ Nghiệp Vụ
@@ -326,21 +273,67 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* ================= PHẦN DƯỚI (FOOTER SIDEBAR) ================= */}
-        <div className="border-t border-slate-100 bg-slate-50/50 p-3">
-          {/* Nút Đăng Xuất & Copyright */}
-          <button
-            onClick={onLogout}
-            className={`w-full flex items-center text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50/80 rounded-lg p-2 transition ${
-              isCollapsed ? 'justify-center' : 'space-x-2'
-            }`}
-            title="Đăng xuất khỏi hệ thống"
-          >
-            <LogOut className="w-4 h-4 flex-shrink-0" />
-            {!isCollapsed && <span>Đăng Xuất</span>}
-          </button>
+        <div className="border-t border-slate-100 bg-slate-50/60 p-2.5 space-y-2">
+          {/* Thẻ User Profile tích hợp nút Đăng Xuất (Phương án 1) */}
+          {currentUser && (
+            <div
+              className={`flex items-center transition-all ${
+                isCollapsed
+                  ? 'justify-center'
+                  : 'justify-between bg-white border border-slate-200/90 rounded-xl p-2 shadow-2xs hover:border-slate-300'
+              }`}
+            >
+              {/* Bên trái: Avatar + Họ tên + Chức vụ */}
+              <div
+                className={`flex items-center min-w-0 ${
+                  isCollapsed ? 'justify-center' : 'space-x-2.5 flex-1 mr-1'
+                }`}
+                title={`${currentUser.fullName} (${getUserRole(currentUser.username)})`}
+              >
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#16a34a] to-[#15803d] text-white font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0">
+                  {getInitials(currentUser.fullName)}
+                </div>
+                {!isCollapsed && (
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-slate-900 text-xs truncate leading-snug">
+                      {currentUser.fullName}
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-medium truncate flex items-center gap-1 mt-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#15803d] shrink-0" />
+                      <span className="truncate">{getUserRole(currentUser.username)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Bên phải: Nút Đăng Xuất tinh tế */}
+              {!isCollapsed && (
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  title="Đăng xuất khỏi hệ thống"
+                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all shrink-0"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Khi thu gọn Sidebar trên Desktop: hiện nút Đăng xuất căn giữa */}
+          {isCollapsed && (
+            <button
+              type="button"
+              onClick={onLogout}
+              title="Đăng xuất khỏi hệ thống"
+              className="w-full flex items-center justify-center p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
 
           {!isCollapsed && (
-            <div className="text-[10px] text-slate-400 text-center mt-2 font-medium">
+            <div className="text-[10px] text-slate-400 text-center font-medium">
               HT FARM Enterprise © 2026
             </div>
           )}

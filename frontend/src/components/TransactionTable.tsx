@@ -40,7 +40,9 @@ import {
   RotateCcw,
   FileSpreadsheet,
   Download,
+  Eye,
 } from 'lucide-react';
+import { TransactionDetailModal } from './TransactionDetailModal';
 
 export type ColumnKey =
   | 'date'
@@ -116,6 +118,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(15);
+  const [selectedDetailTx, setSelectedDetailTx] = useState<Transaction | null>(null);
   // Ảnh chứng từ mặc định luôn hiển thị trực tiếp theo yêu cầu
   const showThumbnails = true;
   const [isExporting, setIsExporting] = useState(false);
@@ -557,11 +560,12 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                     <TableCell
                       className={`py-3 px-3 sticky ${
                         isColVisible('date') ? 'left-[95px]' : 'left-0'
-                      } z-20 bg-white group-hover:bg-slate-50 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.06),1px_0_0_0_#e2e8f0] w-[280px] min-w-[280px] max-w-[280px]`}
-                      title={tx.description}
+                      } z-20 bg-white group-hover:bg-slate-50 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.06),1px_0_0_0_#e2e8f0] w-[280px] min-w-[280px] max-w-[280px] cursor-pointer`}
+                      title={`${tx.description} (Click để xem chi tiết hóa đơn)`}
+                      onClick={() => setSelectedDetailTx(tx)}
                     >
-                      <div className="flex flex-col">
-                        <span className="truncate font-semibold text-slate-900 text-xs">
+                      <div className="flex flex-col group/desc">
+                        <span className="truncate font-semibold text-slate-900 text-xs group-hover/desc:text-[#15803d] transition-colors">
                           {tx.description}
                         </span>
                         {tx.projectTag?.name && (
@@ -717,9 +721,18 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => setSelectedDetailTx(tx)}
+                          title="Xem chi tiết hóa đơn & giao dịch"
+                          className="h-7 w-7 text-slate-500 hover:text-[#15803d] hover:bg-emerald-50 transition"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => onEdit(tx)}
                           title="Chỉnh sửa giao dịch"
-                          className="h-7 w-7 text-slate-400 hover:text-slate-800 hover:bg-slate-100"
+                          className="h-7 w-7 text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </Button>
@@ -728,7 +741,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                           size="icon"
                           onClick={() => onDelete(tx.id)}
                           title="Xóa giao dịch"
-                          className="h-7 w-7 text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                          className="h-7 w-7 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </Button>
@@ -924,8 +937,18 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                   </span>
                 </div>
 
-                {/* Nút Sửa & Xóa */}
+                {/* Nút Xem Chi Tiết, Sửa & Xóa */}
                 <div className="flex items-center space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedDetailTx(tx)}
+                    className="h-7 px-2 text-xs text-[#15803d] bg-emerald-50 hover:bg-emerald-100 font-semibold flex items-center gap-1"
+                    title="Xem chi tiết hóa đơn"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>Chi tiết</span>
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -1023,6 +1046,16 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Modal Xem Chi Tiết Giao Dịch & Hóa Đơn */}
+      <TransactionDetailModal
+        isOpen={!!selectedDetailTx}
+        onClose={() => setSelectedDetailTx(null)}
+        transaction={selectedDetailTx}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onViewBill={onViewBill}
+      />
     </Card>
   );
 };

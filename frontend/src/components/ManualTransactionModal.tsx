@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { ProjectTag, Category, User, PaymentMethod, TransactionType, Transaction } from '../types';
 import { transactionService, aiService, getImageUrl } from '../services/api';
 import { X, CheckCircle2, RefreshCw, Upload, Image as ImageIcon } from 'lucide-react';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from './ui/select';
 
 interface ManualTransactionModalProps {
   isOpen: boolean;
@@ -213,15 +220,19 @@ export const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
             </div>
             <div>
               <label className="block font-semibold text-slate-700 mb-1">Kênh Thanh Toán</label>
-              <select
+              <Select
                 value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                className="w-full border border-slate-300 rounded-lg p-2"
+                onValueChange={(val) => setPaymentMethod(val as PaymentMethod)}
               >
-                <option value="MAIN_BANK_MB">MB Bank (Tài khoản chính)</option>
-                <option value="CASH">Tiền Mặt</option>
-                <option value="OTHER_ACCOUNT">Tài Khoản Khác (Chi hộ)</option>
-              </select>
+                <SelectTrigger className="w-full h-10 border-slate-300 rounded-lg text-xs font-semibold">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MAIN_BANK_MB">MB Bank (Tài khoản chính)</SelectItem>
+                  <SelectItem value="CASH">Tiền Mặt</SelectItem>
+                  <SelectItem value="OTHER_ACCOUNT">Tài Khoản Khác (Chi hộ)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -273,47 +284,76 @@ export const ManualTransactionModal: React.FC<ManualTransactionModalProps> = ({
             </div>
             <div>
               <label className="block font-semibold text-slate-700 mb-1">Người Thực Hiện GD</label>
-              <select
-                value={createdById}
-                onChange={(e) => setCreatedById(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg p-2"
+              <Select
+                value={createdById || (users[0]?.id || '')}
+                onValueChange={(val) => setCreatedById(val)}
               >
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.fullName} ({u.username})
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full h-10 border-slate-300 rounded-lg text-xs font-semibold">
+                  <SelectValue placeholder="Chọn người thực hiện" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map((u) => (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.fullName} ({u.username})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          {/* Dự án & Ghi chú */}
+          {/* Dự án & Danh mục */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block font-semibold text-slate-700 mb-1">Dự Án / Phân Loại</label>
-              <select
-                value={projectTagId}
-                onChange={(e) => setProjectTagId(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg p-2"
+              <Select
+                value={projectTagId || 'ALL'}
+                onValueChange={(val) => setProjectTagId(val === 'ALL' ? '' : val)}
               >
-                <option value="">-- Thuộc chung HT Farm --</option>
-                {projectTags.map((tag) => (
-                  <option key={tag.id} value={tag.id}>
-                    {tag.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full h-10 border-slate-300 rounded-lg text-xs font-semibold">
+                  <SelectValue placeholder="-- Thuộc chung HT Farm --" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">-- Thuộc chung HT Farm --</SelectItem>
+                  {projectTags.map((tag) => (
+                    <SelectItem key={tag.id} value={tag.id}>
+                      {tag.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Ghi Chú Thêm</label>
-              <input
-                type="text"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Ghi chú chi tiết..."
-                className="w-full border border-slate-300 rounded-lg p-2"
-              />
+              <label className="block font-semibold text-slate-700 mb-1">Danh Mục Chi Tiêu</label>
+              <Select
+                value={categoryId || 'ALL'}
+                onValueChange={(val) => setCategoryId(val === 'ALL' ? '' : val)}
+              >
+                <SelectTrigger className="w-full h-10 border-slate-300 rounded-lg text-xs font-semibold">
+                  <SelectValue placeholder="-- Chọn danh mục --" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">-- Chi phí khác --</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+          </div>
+
+          {/* Ghi chú thêm */}
+          <div>
+            <label className="block font-semibold text-slate-700 mb-1">Ghi Chú Thêm</label>
+            <input
+              type="text"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Ghi chú chi tiết..."
+              className="w-full border border-slate-300 rounded-lg p-2"
+            />
           </div>
 
           {/* Đính Kèm Ảnh Chứng Từ / Hóa Đơn (Tùy Chọn) */}

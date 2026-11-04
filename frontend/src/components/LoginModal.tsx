@@ -166,34 +166,59 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
               </p>
             </div>
 
-            {/* Chọn tài khoản nhanh dạng Select */}
+            {/* Chọn tài khoản nhanh: HÀNG DỌC trên Mobile */}
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-slate-800">
                 Chọn tài khoản nhanh
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#058a50]">
-                  <UserIcon className="w-4 h-4 stroke-[2.2]" />
-                </div>
-                <select
-                  value={selectedUser}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setSelectedUser(val);
-                    setUsername(val);
-                    setPassword('123456');
-                  }}
-                  className="w-full pl-10 pr-10 py-2.5 bg-emerald-50/60 hover:bg-emerald-50/90 border-2 border-emerald-200/90 focus:border-[#058a50] focus:ring-2 focus:ring-[#058a50]/20 rounded-2xl text-xs sm:text-sm font-bold text-slate-900 transition appearance-none cursor-pointer"
-                >
-                  {farmProfiles.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} — {p.role} ({p.id})
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-500">
-                  <ChevronDown className="w-4 h-4 stroke-[2.5]" />
-                </div>
+              <div className="space-y-2">
+                {farmProfiles.map((p) => {
+                  const isSelected = selectedUser === p.id;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedUser(p.id);
+                        setUsername(p.id);
+                        setPassword('123456');
+                      }}
+                      className={`w-full flex items-center justify-between p-2.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer ${
+                        isSelected
+                          ? 'border-2 border-[#058a50] bg-emerald-50/70 shadow-xs ring-1 ring-[#058a50]/20'
+                          : 'border border-slate-200 bg-white hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs text-white shadow-xs shrink-0 ${p.avatarBg}`}
+                        >
+                          {p.initial}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-extrabold text-slate-900 text-xs leading-tight truncate">
+                            {p.name}
+                          </div>
+                          <div
+                            className={`text-[10px] mt-0.5 truncate ${
+                              isSelected ? 'text-[#058a50] font-semibold' : 'text-slate-400 font-medium'
+                            }`}
+                          >
+                            {p.role}
+                          </div>
+                        </div>
+                      </div>
+
+                      {isSelected ? (
+                        <div className="w-5 h-5 rounded-full bg-[#058a50] text-white flex items-center justify-center text-xs font-bold shrink-0 ml-2">
+                          <Check className="w-3 h-3 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="w-5 h-5 rounded-full border border-slate-300 shrink-0 ml-2" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -411,8 +436,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
           </div>
 
           {/* CỘT PHẢI: CARD ĐĂNG NHẬP NỔI BẬT */}
-          <div className="w-1/2 max-w-xl">
-            <div className="bg-white rounded-[36px] shadow-2xl shadow-emerald-950/10 border border-slate-200/80 p-8 lg:p-10 space-y-6">
+          <div className="w-1/2 max-w-xl lg:max-w-2xl">
+            <div className="bg-white rounded-[36px] shadow-2xl shadow-emerald-950/10 border border-slate-200/80 p-7 lg:p-9 space-y-6">
               
               <div className="flex items-start justify-between">
                 <div>
@@ -447,34 +472,62 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
                 </div>
               </div>
 
-              {/* Chọn tài khoản nhanh dạng Select */}
+              {/* Chọn tài khoản nhanh: HÀNG NGANG trên Desktop (Hiển thị đầy đủ tên + chức vụ, không bị cắt ...) */}
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-slate-800">
                   Chọn tài khoản nhanh
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#058a50]">
-                    <UserIcon className="w-4 h-4 stroke-[2.2]" />
-                  </div>
-                  <select
-                    value={selectedUser}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setSelectedUser(val);
-                      setUsername(val);
-                      setPassword('123456');
-                    }}
-                    className="w-full pl-10 pr-10 py-3 bg-emerald-50/60 hover:bg-emerald-50/90 border-2 border-emerald-200/90 focus:border-[#058a50] focus:ring-2 focus:ring-[#058a50]/20 rounded-2xl text-sm font-bold text-slate-900 transition appearance-none cursor-pointer"
-                  >
-                    {farmProfiles.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} — {p.role} ({p.id})
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-500">
-                    <ChevronDown className="w-4 h-4 stroke-[2.5]" />
-                  </div>
+                <div className="grid grid-cols-3 gap-2.5">
+                  {farmProfiles.map((p) => {
+                    const isSelected = selectedUser === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedUser(p.id);
+                          setUsername(p.id);
+                          setPassword('123456');
+                        }}
+                        className={`p-3 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between h-[94px] ${
+                          isSelected
+                            ? 'border-2 border-[#058a50] bg-emerald-50/40 shadow-xs ring-1 ring-[#058a50]/20'
+                            : 'border border-slate-200 bg-white hover:bg-slate-50/80 hover:border-slate-300'
+                        }`}
+                      >
+                        {/* Hàng trên: Avatar và Trạng thái tick chọn */}
+                        <div className="flex items-center justify-between w-full">
+                          <div
+                            className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-xs text-white shadow-xs shrink-0 ${p.avatarBg}`}
+                          >
+                            {p.initial}
+                          </div>
+
+                          {isSelected ? (
+                            <div className="w-5 h-5 rounded-full bg-[#058a50] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            </div>
+                          ) : (
+                            <div className="w-5 h-5 rounded-full border border-slate-300 shrink-0" />
+                          )}
+                        </div>
+
+                        {/* Hàng dưới: Họ tên và Chức vụ hiển thị đầy đủ, không bị ... */}
+                        <div className="w-full mt-1">
+                          <div className="font-extrabold text-slate-900 text-xs leading-tight whitespace-normal">
+                            {p.name}
+                          </div>
+                          <div
+                            className={`text-[10px] mt-0.5 leading-tight whitespace-normal ${
+                              isSelected ? 'text-[#058a50] font-semibold' : 'text-slate-400 font-medium'
+                            }`}
+                          >
+                            {p.role}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

@@ -2,6 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ProjectTag, Category, User, PaymentMethod, TransactionType, AiParsedData } from '../types';
 import { aiService, transactionService } from '../services/api';
 import { Sparkles, UploadCloud, AlertTriangle, CheckCircle2, X, RefreshCw, ZoomIn } from 'lucide-react';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from './ui/select';
 
 interface AiReceiptModalProps {
   isOpen: boolean;
@@ -432,17 +439,21 @@ export const AiReceiptModal: React.FC<AiReceiptModalProps> = ({
                     </div>
                     <div>
                       <label className="block font-semibold text-slate-700 mb-1">Kênh Thanh Toán</label>
-                      <select
+                      <Select
                         value={paymentMethod}
-                        onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-                        className={`w-full border rounded-lg p-2 ${
-                          isFieldMissing('paymentMethod') ? 'border-amber-400 bg-amber-50/30' : 'border-slate-300'
-                        }`}
+                        onValueChange={(val) => setPaymentMethod(val as PaymentMethod)}
                       >
-                        <option value="MAIN_BANK_MB">MB Bank (Tài khoản chính)</option>
-                        <option value="CASH">Tiền Mặt</option>
-                        <option value="OTHER_ACCOUNT">Tài Khoản Khác (Chi hộ)</option>
-                      </select>
+                        <SelectTrigger className={`w-full h-10 rounded-lg text-xs font-semibold ${
+                          isFieldMissing('paymentMethod') ? 'border-amber-400 bg-amber-50/30 ring-1 ring-amber-400' : 'border-slate-300'
+                        }`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="MAIN_BANK_MB">MB Bank (Tài khoản chính)</SelectItem>
+                          <SelectItem value="CASH">Tiền Mặt</SelectItem>
+                          <SelectItem value="OTHER_ACCOUNT">Tài Khoản Khác (Chi hộ)</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
@@ -494,17 +505,21 @@ export const AiReceiptModal: React.FC<AiReceiptModalProps> = ({
                     </div>
                     <div>
                       <label className="block font-semibold text-slate-700 mb-1">Người Thực Hiện GD</label>
-                      <select
-                        value={createdById}
-                        onChange={(e) => setCreatedById(e.target.value)}
-                        className="w-full border border-slate-300 rounded-lg p-2"
+                      <Select
+                        value={createdById || (users[0]?.id || '')}
+                        onValueChange={(val) => setCreatedById(val)}
                       >
-                        {users.map((u) => (
-                          <option key={u.id} value={u.id}>
-                            {u.fullName} ({u.username})
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="w-full h-10 border-slate-300 rounded-lg text-xs font-semibold">
+                          <SelectValue placeholder="Chọn người thực hiện" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {users.map((u) => (
+                            <SelectItem key={u.id} value={u.id}>
+                              {u.fullName} ({u.username})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
@@ -512,18 +527,24 @@ export const AiReceiptModal: React.FC<AiReceiptModalProps> = ({
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block font-semibold text-slate-700 mb-1">Dự Án / Phân Loại</label>
-                      <select
-                        value={projectTagId}
-                        onChange={(e) => setProjectTagId(e.target.value)}
-                        className="w-full border border-slate-300 rounded-lg p-2"
+                      <Select
+                        value={projectTagId || 'ALL'}
+                        onValueChange={(val) => setProjectTagId(val === 'ALL' ? '' : val)}
                       >
-                        <option value="">-- Thuộc chung HT Farm --</option>
-                        {projectTags.map((tag) => (
-                          <option key={tag.id} value={tag.id}>
-                            {tag.name}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger className={`w-full h-10 rounded-lg text-xs font-semibold ${
+                          isFieldMissing('suggestedProjectCode') ? 'border-amber-400 bg-amber-50/30 ring-1 ring-amber-400' : 'border-slate-300'
+                        }`}>
+                          <SelectValue placeholder="-- Thuộc chung HT Farm --" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="ALL">-- Thuộc chung HT Farm --</SelectItem>
+                          {projectTags.map((tag) => (
+                            <SelectItem key={tag.id} value={tag.id}>
+                              {tag.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div>
                       <label className="block font-semibold text-slate-700 mb-1">Ghi Chú Thêm</label>

@@ -592,6 +592,7 @@ export function App() {
               transactions={transactions}
               summary={summary}
               projectTags={projectTags}
+              categories={categories}
               selectedTagId={selectedTagId}
               setSelectedTagId={setSelectedTagId}
               selectedMonth={selectedMonth}
