@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Nền trắng viền bo góc bo tròn mềm kiểu Trace -->
+  <rect x="28" y="28" width="456" height="456" rx="136" fill="#ffffff" stroke="#99f6e4" stroke-width="12" />
+
+  <!-- ĐỒNG XU & MẦM LÁ GIAO THOA HÌNH HỌC TỐI GIẢN (Coin & Sprout) -->
+  <!-- Nửa đồng xu / bệ đỡ tài chính bên dưới màu Teal ngọc -->
+  <path d="M 160 270 C 160 335 205 375 270 375 C 335 375 365 330 365 270 Z" fill="#0d9488" />
+
+  <!-- Cánh mầm chi tiêu vươn lên từ đồng xu màu Cyan sáng -->
+  <path d="M 235 285 C 215 220 245 155 335 140 C 330 215 295 275 235 285 Z" fill="#22d3ee" />
+
+  <!-- Điểm tâm tài chính (Negative space circle) -->
+  <circle cx="265" cy="275" r="16" fill="#ffffff" />
+</svg>

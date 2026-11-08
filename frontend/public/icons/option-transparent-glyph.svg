@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="100%" height="100%">
+  <defs>
+    <linearGradient id="leafGlyph1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="leafGlyph2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ee7b7" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <linearGradient id="goldGlyph" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="50%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+  </defs>
+
+  <!-- Golden Coin Base -->
+  <ellipse cx="128" cy="195" rx="65" ry="20" fill="url(#goldGlyph)" />
+  <ellipse cx="128" cy="186" rx="65" ry="18" fill="#fde047" stroke="#d97706" stroke-width="2" />
+  <circle cx="128" cy="186" r="10" fill="#f59e0b" />
+
+  <!-- Farm Sprout / Mầm cây HT Farm -->
+  <path d="M 128 186 Q 126 125 136 85" stroke="#10b981" stroke-width="12" stroke-linecap="round" fill="none" />
+  
+  <!-- Lá trái -->
+  <path d="M 127 140 C 95 135 60 105 65 70 C 90 65 120 95 127 125 Z" fill="url(#leafGlyph1)" />
+  <!-- Lá phải -->
+  <path d="M 130 115 C 155 95 195 65 185 30 C 150 28 125 75 130 115 Z" fill="url(#leafGlyph2)" />
+
+  <!-- Ngôi sao AI lấp lánh góc trên -->
+  <path d="M 195 38 Q 195 50 207 50 Q 195 50 195 62 Q 195 50 183 50 Q 195 50 195 38 Z" fill="#fbbf24" />
+</svg>

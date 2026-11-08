@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- 1 Khung bo tròn đơn chuẩn như Trace (Single Crisp Squircle Frame) -->
+  <rect x="6" y="6" width="500" height="500" rx="136" fill="#ffffff" stroke="#e2e8f0" stroke-width="12" />
+
+  <!-- 3 CỘT CHI TIÊU NHỎ GỌN, CÂN ĐỐI TRONG KHUNG (TRIPLET BARS) -->
+  <!-- Cột 1: Chi tiêu (Xanh Cyan sáng) -->
+  <rect x="153" y="250" width="54" height="120" rx="27" fill="#38bdf8" />
+
+  <!-- Cột 2: Chi phí vận hành (Xanh Teal ngọc) -->
+  <rect x="229" y="195" width="54" height="175" rx="27" fill="#14b8a6" />
+
+  <!-- Cột 3: Quỹ ngân sách / Doanh thu (Xanh lục bảo) -->
+  <rect x="305" y="165" width="54" height="205" rx="27" fill="#059669" />
+
+  <!-- Hạt mầm nảy nở trên đỉnh quỹ -->
+  <circle cx="332" cy="120" r="18" fill="#10b981" />
+</svg>

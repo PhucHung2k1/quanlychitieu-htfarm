@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Hoàn toàn KHÔNG CÓ KHUNG (Pure Transparent Floating Bars) -->
+  <!-- Cột 1: Chi tiêu (Xanh Cyan sáng) -->
+  <rect x="70" y="210" width="106" height="230" rx="53" fill="#38bdf8" />
+
+  <!-- Cột 2: Chi phí vận hành (Xanh Teal ngọc) -->
+  <rect x="203" y="120" width="106" height="320" rx="53" fill="#14b8a6" />
+
+  <!-- Cột 3: Quỹ ngân sách / Doanh thu (Xanh lục bảo) -->
+  <rect x="336" y="90" width="106" height="350" rx="53" fill="#059669" />
+
+  <!-- Hạt mầm nảy nở trên đỉnh quỹ nông trại -->
+  <circle cx="389" cy="35" r="32" fill="#10b981" />
+</svg>

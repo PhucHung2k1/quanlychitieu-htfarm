@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#022c22" />
+      <stop offset="50%" stop-color="#064e3b" />
+      <stop offset="100%" stop-color="#082f49" />
+    </linearGradient>
+
+    <!-- Receipt Paper Gradient -->
+    <linearGradient id="paperGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="85%" stop-color="#f0fdf4" />
+      <stop offset="100%" stop-color="#dcfce7" />
+    </linearGradient>
+
+    <!-- Scan Beam Gradient -->
+    <linearGradient id="laserBeam" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0" />
+      <stop offset="25%" stop-color="#34d399" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#38bdf8" stop-opacity="1" />
+      <stop offset="75%" stop-color="#34d399" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+    </linearGradient>
+
+    <linearGradient id="laserField" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- AI Star Gold Gradient -->
+    <linearGradient id="aiStarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb" />
+      <stop offset="40%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#d97706" />
+    </linearGradient>
+
+    <!-- Leaf Gradient -->
+    <linearGradient id="leafScanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6ee7b7" />
+      <stop offset="50%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="shadow4" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+    <filter id="laserGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Squircle -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bgGrad4)" stroke="#38bdf8" stroke-opacity="0.25" stroke-width="4" />
+
+  <!-- KHUNG NGẮM SCANNER 4 GÓC (VIEWFINDER CORNERS) -->
+  <g stroke="#34d399" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.85">
+    <!-- Top-Left -->
+    <path d="M 120 160 L 120 120 L 160 120" />
+    <!-- Top-Right -->
+    <path d="M 352 120 L 392 120 L 392 160" />
+    <!-- Bottom-Left -->
+    <path d="M 120 352 L 120 392 L 160 392" />
+    <!-- Bottom-Right -->
+    <path d="M 352 392 L 392 392 L 392 352" />
+  </g>
+
+  <!-- TỜ HÓA ĐƠN THU CHI (SMART INVOICE SHEET) -->
+  <g filter="url(#shadow4)">
+    <!-- Thân hóa đơn -->
+    <rect x="156" y="130" width="200" height="252" rx="20" fill="url(#paperGrad)" />
+    
+    <!-- Đầu hóa đơn - viền xanh thương hiệu -->
+    <path d="M 156 150 C 156 139 165 130 176 130 L 336 130 C 347 130 356 139 356 150 L 356 175 L 156 175 Z" fill="#059669" />
+    <circle cx="185" cy="152" r="5" fill="#a7f3d0" />
+    <circle cx="202" cy="152" r="5" fill="#a7f3d0" />
+    <circle cx="219" cy="152" r="5" fill="#a7f3d0" />
+
+    <!-- Dòng text mô phỏng bóc tách dữ liệu -->
+    <rect x="180" y="195" width="90" height="9" rx="4" fill="#94a3b8" />
+    <rect x="290" y="195" width="42" height="9" rx="4" fill="#64748b" />
+
+    <rect x="180" y="215" width="120" height="9" rx="4" fill="#cbd5e1" />
+    <rect x="180" y="235" width="75" height="9" rx="4" fill="#cbd5e1" />
+    <rect x="280" y="235" width="52" height="9" rx="4" fill="#10b981" />
+
+    <!-- Đường nét đứt xé hóa đơn -->
+    <line x1="170" y1="262" x2="342" y2="262" stroke="#94a3b8" stroke-dasharray="6 4" stroke-width="2" />
+
+    <!-- Dòng tổng tiền BCTC -->
+    <rect x="180" y="280" width="60" height="11" rx="4" fill="#0f172a" />
+    <rect x="265" y="278" width="67" height="15" rx="5" fill="#059669" />
+
+    <!-- Mã vạch / QR Mini tượng trưng -->
+    <g fill="#64748b" opacity="0.6">
+      <rect x="180" y="325" width="4" height="25" />
+      <rect x="188" y="325" width="8" height="25" />
+      <rect x="200" y="325" width="4" height="25" />
+      <rect x="208" y="325" width="12" height="25" />
+      <rect x="224" y="325" width="6" height="25" />
+      <rect x="234" y="325" width="10" height="25" />
+      <rect x="248" y="325" width="4" height="25" />
+      <rect x="256" y="325" width="14" height="25" />
+      <rect x="274" y="325" width="6" height="25" />
+    </g>
+  </g>
+
+  <!-- TIA SCAN LASER AI CHIẾU RỰC RỠ -->
+  <g filter="url(#laserGlow)">
+    <!-- Vùng quét phản quang mờ phía dưới tia laser -->
+    <polygon points="120,240 392,240 370,290 142,290" fill="url(#laserField)" />
+
+    <!-- Vạch Laser chính -->
+    <line x1="100" y1="240" x2="412" y2="240" stroke="url(#laserBeam)" stroke-width="5" stroke-linecap="round" />
+    <circle cx="256" cy="240" r="4" fill="#ffffff" />
+  </g>
+
+  <!-- MẦM CÂY & NGÔI SAO AI TRUNG TÂM (GEMINI AI VISION + HT FARM) -->
+  <g filter="url(#shadow4)">
+    <!-- Vòng tròn AI Badge đính nổi -->
+    <circle cx="345" cy="330" r="44" fill="#042f24" stroke="#34d399" stroke-width="3" />
+    
+    <!-- Mầm cây xanh sinh thái -->
+    <path d="M 345 352 Q 343 325 348 310" stroke="#34d399" stroke-width="5" stroke-linecap="round" fill="none" />
+    <path d="M 345 330 C 330 326 318 310 325 300 C 335 300 345 315 345 330 Z" fill="url(#leafScanGrad)" />
+    <path d="M 346 322 C 356 312 370 306 370 296 C 358 296 348 310 346 322 Z" fill="url(#leafScanGrad)" />
+
+    <!-- Ngôi sao 4 cánh AI Gemini vàng rực rỡ lơ lửng -->
+    <path d="M 358 285 Q 358 300 373 300 Q 358 300 358 315 Q 358 300 343 300 Q 358 300 358 285 Z" fill="url(#aiStarGrad)" filter="url(#laserGlow)" />
+  </g>
+
+  <!-- Ngôi sao nhỏ phụ -->
+  <path d="M 150 145 Q 150 155 160 155 Q 150 155 150 165 Q 150 155 140 155 Q 150 155 150 145 Z" fill="#38bdf8" filter="url(#laserGlow)" opacity="0.9" />
+
+  <!-- Text chân icon -->
+  <text x="256" y="455" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="22" font-weight="800" fill="#a7f3d0" letter-spacing="4" opacity="0.9">AI BÓC TÁCH HÓA ĐƠN</text>
+</svg>

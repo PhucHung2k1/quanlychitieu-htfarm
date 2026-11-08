@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { authService } from '../services/api';
 import { User } from '../types';
-import logoIcon from '../images/HTFARM_ICON.png';
+import logoIcon from '../images/HTFARM_ICON.svg';
 import farmBg from '../images/farm_background.jpg';
 import {
   Lock,
@@ -134,11 +134,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
           {/* CỤM LOGO & THƯƠNG HIỆU: ĐẶT SÁT NGAY TRÊN CARD FORM (mb-1.5) */}
           <div className="text-center text-white flex flex-col items-center mb-8">
             {/* Logo HT FARM thật dạng huy hiệu bo tròn trắng nổi bật */}
-            <div className="w-14 h-14 bg-white rounded-2xl shadow-xl p-2.5 flex items-center justify-center mb-1.5 border border-emerald-200/90 shadow-emerald-950/20 transform active:scale-95 transition">
+            <div className="w-14 h-14 rounded-2xl shadow-xl overflow-hidden flex items-center justify-center mb-1.5 shadow-emerald-950/20 transform active:scale-95 transition">
               <img
                 src={logoIcon}
                 alt="HT FARM Logo"
-                className="w-full h-full object-contain filter drop-shadow-xs"
+                className="w-full h-full object-contain"
               />
             </div>
 
@@ -361,7 +361,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ onLoginSuccess }) => {
                 <img
                   src={logoIcon}
                   alt="HT FARM Icon"
-                  className="w-full h-full object-contain filter drop-shadow-xs"
+                  className="w-full h-full object-contain"
                 />
               </div>
               <div className="text-left">

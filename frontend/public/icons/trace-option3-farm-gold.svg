@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Nền trắng viền bo góc bo tròn mềm -->
+  <rect x="28" y="28" width="456" height="456" rx="136" fill="#ffffff" stroke="#e2e8f0" stroke-width="12" />
+  
+  <!-- Cánh lá trái: Xanh ngọc lục bảo HT Farm -->
+  <path d="M 185 345 C 160 265 210 185 305 175 C 290 255 250 330 185 345 Z" fill="#059669" />
+  
+  <!-- Cánh lá phải: Vàng tài chính tối giản (Finance Gold) -->
+  <path d="M 235 335 C 235 280 270 240 345 225 C 335 280 300 325 235 335 Z" fill="#f59e0b" />
+</svg>

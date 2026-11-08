@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { User, ProjectTag, SummaryData } from '../types';
-import logoIcon from '../images/HTFARM_ICON.png';
+import logoIcon from '../images/HTFARM_ICON.svg';
 import {
   FileSpreadsheet,
   BarChart3,
@@ -125,11 +125,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             isCollapsed ? 'justify-center px-2' : 'justify-between px-4'
           }`}>
             <div className="flex items-center space-x-3 min-w-0">
-              <div className="w-10 h-10 bg-emerald-50 rounded-xl border border-emerald-100 p-1 flex items-center justify-center shadow-xs flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 shadow-xs">
                 <img
                   src={logoIcon}
                   alt="HT FARM Icon"
-                  className="w-full h-full object-contain filter drop-shadow-xs"
+                  className="w-full h-full object-contain"
                 />
               </div>
               {!isCollapsed && (

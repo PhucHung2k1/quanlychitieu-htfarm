@@ -1,6 +1,6 @@
 import React from 'react';
 import { User } from '../types';
-import logoIcon from '../images/HTFARM_ICON.png';
+import logoIcon from '../images/HTFARM_ICON.svg';
 import { LogOut, UserCircle } from 'lucide-react';
 
 interface NavbarProps {
@@ -13,8 +13,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
     <header className="bg-white border-b border-slate-200/90 sticky top-0 z-30 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="bg-emerald-50/60 p-1.5 rounded-xl border border-emerald-100 flex items-center justify-center w-11 h-11 shadow-xs">
-            <img src={logoIcon} alt="HT FARM Icon" className="w-full h-full object-contain filter drop-shadow-xs" />
+          <div className="rounded-xl overflow-hidden flex items-center justify-center w-10 h-10 shadow-xs flex-shrink-0">
+            <img src={logoIcon} alt="HT FARM Icon" className="w-full h-full object-contain" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
