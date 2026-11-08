@@ -411,7 +411,7 @@ export function App() {
       {/* ================= 2. KHU VỰC NỘI DUNG CHÍNH (BÊN PHẢI) ================= */}
       <div className={`flex-1 ${isSidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'} transition-all duration-300 flex flex-col min-w-0 max-w-full overflow-x-hidden min-h-screen`}>
         {/* Top Header */}
-        <header className="sticky top-0 z-30 bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between shadow-xs">
+        <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between shadow-xs">
           <div className="flex items-center space-x-3">
             {/* Nút Menu Hamburger cho Mobile */}
             <button
@@ -467,7 +467,7 @@ export function App() {
             <Button
               onClick={() => setIsAiModalOpen(true)}
               size="sm"
-              className="bg-[#15803d] hover:bg-[#166534] text-white font-bold flex items-center space-x-1 sm:space-x-1.5 shadow-xs px-2.5 sm:px-3 h-8 sm:h-9 text-xs"
+              className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 hover:from-emerald-700 hover:to-teal-900 text-white font-bold flex items-center space-x-1 sm:space-x-1.5 shadow-[0_4px_14px_rgba(5,150,105,0.35)] hover:shadow-[0_6px_20px_rgba(5,150,105,0.45)] hover:-translate-y-0.5 transition-all px-3 sm:px-3.5 h-8 sm:h-9 text-xs rounded-xl"
             >
               <Sparkles className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
               <span className="hidden sm:inline">Quét Hóa Đơn AI</span>
@@ -481,7 +481,7 @@ export function App() {
                 setEditingTransaction(null);
                 setIsManualModalOpen(true);
               }}
-              className="font-bold flex items-center space-x-1 border-slate-200 text-slate-700 hover:bg-slate-50 px-2.5 sm:px-3 h-8 sm:h-9 text-xs"
+              className="font-bold flex items-center space-x-1 border-slate-200/90 text-slate-700 hover:bg-slate-50 hover:text-slate-900 px-3 sm:px-3.5 h-8 sm:h-9 text-xs rounded-xl shadow-xs transition-all"
             >
               <Plus className="w-3.5 h-3.5 text-slate-500 shrink-0" />
               <span className="hidden sm:inline">Thêm Giao Dịch</span>
@@ -505,10 +505,13 @@ export function App() {
                     <SummaryCards
                       summary={summary}
                       onFilterMb={() => setTxTypeFilter('MB_BANK')}
+                      onFilterCash={() => setTxTypeFilter('CASH')}
+                      onFilterIncome={() => setTxTypeFilter('INCOME')}
+                      onFilterExpense={() => setTxTypeFilter('EXPENSE')}
                     />
 
                     {/* Thanh Công Cụ & Bộ Lọc Nhanh */}
-                    <Card className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-3.5">
+                    <Card className="bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.04)] space-y-4">
                       {/* Hàng 1: Tabs phân loại giao dịch */}
                       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                         <div className="flex flex-wrap items-center gap-2">
@@ -519,10 +522,10 @@ export function App() {
                                 key={tab.id}
                                 type="button"
                                 onClick={() => setTxTypeFilter(tab.id as any)}
-                                className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs transition-all ${
+                                className={`inline-flex items-center px-3.5 py-1.5 rounded-xl text-xs transition-all ${
                                   isSelected
-                                    ? 'bg-[#15803d] text-white border border-[#15803d] font-bold shadow-xs'
-                                    : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 font-medium'
+                                    ? 'bg-gradient-to-r from-emerald-700 to-teal-800 text-white font-bold shadow-[0_2px_8px_rgba(4,120,87,0.35)] border border-emerald-600'
+                                    : 'bg-slate-100/80 text-slate-600 border border-slate-200/60 hover:bg-white hover:text-slate-900 font-semibold'
                                 }`}
                               >
                                 <span>{tab.label}</span>

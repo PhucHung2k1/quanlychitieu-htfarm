@@ -113,7 +113,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* SIDEBAR CONTAINER */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 bg-white border-r border-slate-200/90 flex flex-col justify-between transition-all duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 bg-white/95 backdrop-blur-md border-r border-slate-200/80 shadow-[1px_0_16px_rgba(0,0,0,0.03)] flex flex-col justify-between transition-all duration-300 ease-in-out lg:translate-x-0 ${
           isMobileOpen ? 'translate-x-0 shadow-2xl w-64' : '-translate-x-full lg:translate-x-0'
         } ${isCollapsed ? 'lg:w-20' : 'lg:w-64'}`}
       >
@@ -175,8 +175,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   : 'justify-between px-3 py-2.5'
               } ${
                 isJournalActive
-                  ? 'bg-emerald-50 text-[#15803d] shadow-xs border border-emerald-200/80'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-gradient-to-r from-emerald-50 via-emerald-50/90 to-teal-50/40 text-emerald-800 shadow-2xs border border-emerald-200/90 rounded-xl'
+                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 rounded-xl font-medium'
               }`}
             >
               <div className="flex items-center space-x-2.5">
@@ -188,7 +188,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {!isCollapsed && <span>Sổ Kế Toán Thu Chi</span>}
               </div>
               {!isCollapsed && isJournalActive && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#15803d]" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
               )}
             </button>
 
@@ -206,8 +206,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   : 'justify-between px-3 py-2.5'
               } ${
                 isAnalyticsActive
-                  ? 'bg-emerald-50 text-[#15803d] shadow-xs border border-emerald-200/80'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  ? 'bg-gradient-to-r from-emerald-50 via-emerald-50/90 to-teal-50/40 text-emerald-800 shadow-2xs border border-emerald-200/90 rounded-xl'
+                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 rounded-xl font-medium'
               }`}
             >
               <div className="flex items-center space-x-2.5">
@@ -219,7 +219,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {!isCollapsed && <span>Báo Cáo & Biểu Đồ</span>}
               </div>
               {!isCollapsed && isAnalyticsActive && (
-                <span className="w-1.5 h-1.5 rounded-full bg-[#15803d]" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
               )}
             </button>
           </div>
@@ -237,8 +237,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => setSelectedTagId('')}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all ${
                   selectedTagId === ''
-                    ? 'bg-[#15803d] text-white shadow-xs'
-                    : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-gradient-to-r from-emerald-700 to-teal-800 text-white font-extrabold shadow-[0_2px_8px_rgba(4,120,87,0.35)] rounded-xl'
+                    : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 font-medium rounded-xl'
                 }`}
               >
                 <div className="flex items-center space-x-2 truncate">
@@ -246,7 +246,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <span className="truncate">Tất cả (Mẫu 06.1)</span>
                 </div>
                 <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold font-mono ${
-                  selectedTagId === '' ? 'bg-[#166534] text-white' : 'bg-slate-100 text-slate-500'
+                  selectedTagId === '' ? 'bg-white/25 text-white border border-white/20' : 'bg-slate-100 text-slate-600 border border-slate-200/60'
                 }`}>
                   {totalTxCount}
                 </span>
@@ -273,7 +273,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       <span className="truncate">{tag.name}</span>
                     </div>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold font-mono ${
-                      isSelected ? 'bg-[#166534] text-white' : 'bg-slate-100 text-slate-500'
+                      isSelected ? 'bg-white/25 text-white border border-white/20' : 'bg-slate-100 text-slate-600 border border-slate-200/60'
                     }`}>
                       {count}
                     </span>

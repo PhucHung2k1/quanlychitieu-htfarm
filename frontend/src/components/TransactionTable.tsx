@@ -329,11 +329,16 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
   );
 
   return (
-    <Card className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+    <Card className="bg-white/95 backdrop-blur-sm border border-slate-200/80 rounded-2xl overflow-hidden shadow-[0_4px_24px_-4px_rgba(0,0,0,0.04)]">
       {/* THANH TIÊU ĐỀ BẢNG VÀ TÙY CHỌN */}
-      <div className="px-5 py-3.5 bg-slate-50/80 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="px-5 py-3.5 bg-gradient-to-r from-slate-50/90 via-white to-emerald-50/30 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center space-x-2">
-          <span className="font-bold text-slate-800 text-xs">Sổ Nhật Ký Thu Chi 06.1/BCTC</span>
+          <div className="flex items-center space-x-2.5">
+            <div className="w-6 h-6 rounded-md bg-emerald-50 border border-emerald-200/70 text-emerald-700 flex items-center justify-center shadow-2xs shrink-0">
+              <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-700" />
+            </div>
+            <span className="font-extrabold text-slate-800 text-xs sm:text-sm">Sổ Nhật Ký Thu Chi 06.1/BCTC</span>
+          </div>
           <span className="text-slate-300">·</span>
           <span className="text-[11px] text-slate-500 font-medium">
             Hiển thị <strong className="text-slate-900 font-bold">{startIndex + 1} - {endIndex}</strong> / {transactions.length} giao dịch
@@ -348,7 +353,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 text-xs border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-white flex items-center gap-1.5 shadow-2xs font-medium"
+                  className="h-8 text-xs border-slate-200/90 text-slate-700 hover:text-slate-900 hover:bg-white flex items-center gap-1.5 shadow-2xs font-semibold rounded-xl"
                 >
                   <Columns3 className="w-3.5 h-3.5 text-[#15803d]" />
                   <span>Tùy chỉnh cột</span>
@@ -404,7 +409,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
             size="sm"
             onClick={handleExportExcel}
             disabled={isExporting}
-            className="h-8 text-xs border-emerald-300 bg-emerald-50/80 text-[#15803d] hover:bg-emerald-100 hover:text-emerald-800 flex items-center gap-1.5 shadow-2xs font-bold transition cursor-pointer"
+            className="h-8 text-xs border-emerald-300/80 bg-emerald-50/90 text-emerald-800 hover:bg-emerald-100 hover:text-emerald-900 flex items-center gap-1.5 shadow-2xs font-bold rounded-xl transition cursor-pointer"
             title="Tải về file Excel Sổ Nhật Ký Thu Chi (Mẫu 06.1/BCTC)"
           >
             <FileSpreadsheet className="w-3.5 h-3.5 text-[#15803d]" />
@@ -548,8 +553,8 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
               return (
                 <TableRow
                   key={tx.id}
-                  className={`group hover:bg-slate-50 transition-colors border-b border-slate-100 ${
-                    idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'
+                  className={`group hover:bg-emerald-50/25 transition-colors border-b border-slate-100/90 ${
+                    idx % 2 === 1 ? 'bg-slate-50/40' : 'bg-white'
                   }`}
                 >
                   {/* Cột 1: NGÀY (Sticky Left) */}
@@ -1000,7 +1005,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
       </div>
 
       {/* THANH ĐIỀU HƯỚNG PHÂN TRANG */}
-      <div className="px-5 py-3 bg-white border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+      <div className="px-5 py-3.5 bg-slate-50/50 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
         <div className="flex items-center space-x-2">
           <span>Số hàng:</span>
           <Select
