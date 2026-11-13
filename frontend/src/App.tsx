@@ -438,16 +438,16 @@ export function App() {
             <div className="h-5 w-px bg-slate-200 hidden lg:block" />
 
             {/* Tiêu đề phân hệ / Màn hình làm việc hiện tại (Phương án 1: Bỏ trùng lặp HT FARM) */}
-            <div className="flex items-center space-x-1.5 font-bold text-[#15803d] bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200/80 shadow-2xs text-xs">
+            <div className="flex items-center space-x-1.5 font-bold text-teal-800 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200/80 shadow-2xs text-xs">
               {activeTab === 'journal' ? (
                 <>
-                  <FileSpreadsheet className="w-4 h-4 shrink-0 text-[#15803d]" />
+                  <FileSpreadsheet className="w-4 h-4 shrink-0 text-teal-700" />
                   <span className="hidden sm:inline">Sổ Kế Toán Thu Chi (Mẫu 06.1/BCTC)</span>
                   <span className="inline sm:hidden">Sổ Thu Chi (06.1)</span>
                 </>
               ) : (
                 <>
-                  <BarChart3 className="w-4 h-4 shrink-0 text-[#15803d]" />
+                  <BarChart3 className="w-4 h-4 shrink-0 text-teal-700" />
                   <span className="hidden sm:inline">Báo Cáo & Biểu Đồ FinTech</span>
                   <span className="inline sm:hidden">Báo Cáo & Biểu Đồ</span>
                 </>
@@ -458,7 +458,7 @@ export function App() {
           {/* Quick Header Right Actions: Quét Hóa Đơn AI và Thêm Giao Dịch */}
           <div className="flex items-center space-x-2 sm:space-x-3">
             {loading && (
-              <span className="hidden md:flex items-center space-x-1.5 text-xs text-[#15803d] font-bold">
+              <span className="hidden md:flex items-center space-x-1.5 text-xs text-teal-700 font-bold">
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 <span>Đang đồng bộ...</span>
               </span>
@@ -467,9 +467,9 @@ export function App() {
             <Button
               onClick={() => setIsAiModalOpen(true)}
               size="sm"
-              className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 hover:from-emerald-700 hover:to-teal-900 text-white font-bold flex items-center space-x-1 sm:space-x-1.5 shadow-[0_4px_14px_rgba(5,150,105,0.35)] hover:shadow-[0_6px_20px_rgba(5,150,105,0.45)] hover:-translate-y-0.5 transition-all px-3 sm:px-3.5 h-8 sm:h-9 text-xs rounded-xl"
+              className="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white font-bold flex items-center space-x-1 sm:space-x-1.5 shadow-[0_4px_14px_rgba(13,148,136,0.35)] hover:shadow-[0_6px_20px_rgba(13,148,136,0.45)] hover:-translate-y-0.5 transition-all px-3 sm:px-3.5 h-8 sm:h-9 text-xs rounded-xl"
             >
-              <Sparkles className="w-3.5 h-3.5 text-emerald-200 shrink-0" />
+              <Sparkles className="w-3.5 h-3.5 text-cyan-200 shrink-0" />
               <span className="hidden sm:inline">Quét Hóa Đơn AI</span>
               <span className="inline sm:hidden">AI</span>
             </Button>
@@ -524,7 +524,7 @@ export function App() {
                                 onClick={() => setTxTypeFilter(tab.id as any)}
                                 className={`inline-flex items-center px-3.5 py-1.5 rounded-xl text-xs transition-all ${
                                   isSelected
-                                    ? 'bg-gradient-to-r from-emerald-700 to-teal-800 text-white font-bold shadow-[0_2px_8px_rgba(4,120,87,0.35)] border border-emerald-600'
+                                    ? 'bg-gradient-to-r from-teal-700 to-teal-800 text-white font-bold shadow-[0_2px_8px_rgba(15,118,110,0.35)] border border-teal-600'
                                     : 'bg-slate-100/80 text-slate-600 border border-slate-200/60 hover:bg-white hover:text-slate-900 font-semibold'
                                 }`}
                               >
@@ -734,15 +734,15 @@ export function App() {
         {/* Footer */}
         <footer className="border-t border-slate-200 bg-white py-4 px-6 lg:px-8 text-center sm:text-left sm:flex sm:items-center sm:justify-between text-xs text-slate-500 font-medium">
           <span>© 2026 HT FARM — Hệ Thống Kế Toán Thu Chi & Trợ Lý Bóc Tách Hóa Đơn AI</span>
-          <span className="text-[#15803d] font-bold">Mẫu Sổ 06.1/BCTC Chuẩn Doanh Nghiệp</span>
+          <span className="text-teal-700 font-bold">Mẫu Sổ 06.1/BCTC Chuẩn Doanh Nghiệp</span>
         </footer>
       </div>
 
       {/* ================= MODALS & TOAST NOTIFICATION ================= */}
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#15803d] text-white px-5 py-3 rounded-xl shadow-xl flex items-center space-x-3 animate-in slide-in-from-bottom-5 duration-300">
-          <CheckCircle2 className="w-5 h-5 text-emerald-200 shrink-0" />
+        <div className="fixed bottom-6 right-6 z-50 bg-teal-700 text-white px-5 py-3 rounded-xl shadow-xl flex items-center space-x-3 animate-in slide-in-from-bottom-5 duration-300">
+          <CheckCircle2 className="w-5 h-5 text-teal-200 shrink-0" />
           <span className="text-sm font-bold">{toastMessage}</span>
         </div>
       )}

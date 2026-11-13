@@ -137,7 +137,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <h1 className="text-base font-black tracking-tight text-slate-900 leading-none truncate">
                     HT FARM
                   </h1>
-                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#15803d] mt-1 truncate">
+                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-teal-700 mt-1 truncate">
                     Kế Toán & Dòng Tiền
                   </p>
                 </div>
@@ -175,14 +175,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   : 'justify-between px-3 py-2.5'
               } ${
                 isJournalActive
-                  ? 'bg-gradient-to-r from-emerald-50 via-emerald-50/90 to-teal-50/40 text-emerald-800 shadow-2xs border border-emerald-200/90 rounded-xl'
+                  ? 'bg-teal-50 text-teal-800 shadow-2xs border border-teal-200/90 rounded-xl'
                   : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 rounded-xl font-medium'
               }`}
             >
               <div className="flex items-center space-x-2.5">
                 <FileSpreadsheet
                   className={`w-4 h-4 flex-shrink-0 ${
-                    isJournalActive ? 'text-[#15803d]' : 'text-slate-400'
+                    isJournalActive ? 'text-teal-700' : 'text-slate-400'
                   }`}
                 />
                 {!isCollapsed && <span>Sổ Kế Toán Thu Chi</span>}
@@ -206,14 +206,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   : 'justify-between px-3 py-2.5'
               } ${
                 isAnalyticsActive
-                  ? 'bg-gradient-to-r from-emerald-50 via-emerald-50/90 to-teal-50/40 text-emerald-800 shadow-2xs border border-emerald-200/90 rounded-xl'
+                  ? 'bg-teal-50 text-teal-800 shadow-2xs border border-teal-200/90 rounded-xl'
                   : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 rounded-xl font-medium'
               }`}
             >
               <div className="flex items-center space-x-2.5">
                 <BarChart3
                   className={`w-4 h-4 flex-shrink-0 ${
-                    isAnalyticsActive ? 'text-[#15803d]' : 'text-slate-400'
+                    isAnalyticsActive ? 'text-teal-700' : 'text-slate-400'
                   }`}
                 />
                 {!isCollapsed && <span>Báo Cáo & Biểu Đồ</span>}
@@ -229,7 +229,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="px-3 pt-5 space-y-1">
               <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
                 <span>Chi Nhánh / Dự Án</span>
-                <span className="text-[10px] text-[#15803d] font-bold">Số GD</span>
+                <span className="text-[10px] text-teal-700 font-bold">Số GD</span>
               </div>
 
               {/* Tất cả */}
@@ -237,7 +237,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => setSelectedTagId('')}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold transition-all ${
                   selectedTagId === ''
-                    ? 'bg-gradient-to-r from-emerald-700 to-teal-800 text-white font-extrabold shadow-[0_2px_8px_rgba(4,120,87,0.35)] rounded-xl'
+                    ? 'bg-gradient-to-r from-teal-700 to-teal-800 text-white font-extrabold shadow-[0_2px_8px_rgba(15,118,110,0.35)] rounded-xl'
                     : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 font-medium rounded-xl'
                 }`}
               >
@@ -264,7 +264,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={() => setSelectedTagId(tag.id)}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${
                       isSelected
-                        ? 'bg-[#15803d] text-white shadow-xs font-bold'
+                        ? 'bg-teal-700 text-white shadow-xs font-bold'
                         : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-medium'
                     }`}
                   >
@@ -302,7 +302,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }`}
                 title={`${currentUser.fullName} (${getUserRole(currentUser.username)})`}
               >
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#16a34a] to-[#15803d] text-white font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-600 to-teal-800 text-white font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0">
                   {getInitials(currentUser.fullName)}
                 </div>
                 {!isCollapsed && (
@@ -311,7 +311,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       {currentUser.fullName}
                     </div>
                     <div className="text-[10px] text-slate-500 font-medium truncate flex items-center gap-1 mt-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#15803d] shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-teal-600 shrink-0" />
                       <span className="truncate">{getUserRole(currentUser.username)}</span>
                     </div>
                   </div>

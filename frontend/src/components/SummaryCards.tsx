@@ -84,14 +84,14 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
         {/* ========================================================================= */}
         <div
           onClick={onFilterMb}
-          className={`h-full relative rounded-2xl p-4 sm:p-5 text-white bg-gradient-to-br from-[#064e3b] via-[#047857] to-[#022c22] border border-emerald-400/25 shadow-[0_8px_24px_-4px_rgba(6,78,59,0.35)] flex flex-col justify-between overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_-6px_rgba(6,78,59,0.45)] ${
+          className={`h-full relative rounded-2xl p-4 sm:p-5 text-white bg-gradient-to-br from-[#0f172a] via-[#115e59] to-[#042f2e] border border-teal-400/25 shadow-[0_8px_24px_-4px_rgba(15,23,42,0.35)] flex flex-col justify-between overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_-6px_rgba(15,23,42,0.45)] ${
             onFilterMb ? 'cursor-pointer' : ''
           }`}
         >
           {/* Top Edge Highlight */}
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-300/50 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/50 to-transparent pointer-events-none" />
           {/* Ambient Radial Mesh Glow */}
-          <div className="absolute -right-8 -top-8 w-36 h-36 bg-emerald-400/20 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -right-8 -top-8 w-36 h-36 bg-cyan-400/20 rounded-full blur-2xl pointer-events-none" />
           <div className="absolute -left-8 -bottom-8 w-32 h-32 bg-teal-400/15 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 space-y-3">
@@ -99,7 +99,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center space-x-2.5 min-w-0">
                 <div className="w-9 h-9 rounded-xl bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center text-white shadow-inner shrink-0 group-hover:scale-105 transition-transform duration-200">
-                  <Wallet className="w-4 h-4 text-emerald-200" />
+                  <Wallet className="w-4 h-4 text-cyan-200" />
                 </div>
                 <div className="min-w-0">
                   <h4 className="font-extrabold text-sm text-white tracking-tight leading-none truncate flex items-center gap-1.5">
@@ -113,8 +113,8 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
               </div>
 
               {/* Status indicator */}
-              <div className="shrink-0 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/50 border border-emerald-400/30 text-[10px] font-semibold text-emerald-200 backdrop-blur-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+              <div className="shrink-0 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-teal-950/60 border border-teal-400/30 text-[10px] font-semibold text-teal-200 backdrop-blur-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 inline-block animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]" />
                 <span>Live</span>
               </div>
             </div>
@@ -129,7 +129,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
                   className={`text-[10px] px-2 py-0.5 rounded-full font-bold border backdrop-blur-md shadow-xs ${
                     mbBalance < 0
                       ? 'bg-rose-500/20 text-rose-200 border-rose-400/30'
-                      : 'bg-emerald-300/20 text-emerald-100 border-emerald-300/40'
+                      : 'bg-cyan-300/20 text-cyan-100 border-cyan-300/40'
                   }`}
                 >
                   {mbBalance < 0 ? 'Thấu chi' : 'Khả dụng'}
@@ -140,14 +140,14 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
             {/* Structured 2-Column Mini Stat Box */}
             <div className="grid grid-cols-2 gap-2 p-2 rounded-xl bg-white/10 border border-white/10 text-[11px]">
               <div className="min-w-0">
-                <span className="text-emerald-200/75 block text-[10px] font-medium leading-none">Thu MB</span>
-                <span className="font-bold text-emerald-200 truncate block mt-1 tabular-nums text-xs">
+                <span className="text-teal-200/75 block text-[10px] font-medium leading-none">Thu MB</span>
+                <span className="font-bold text-cyan-200 truncate block mt-1 tabular-nums text-xs">
                   +{formatCurrency(mbIncome)}
                 </span>
               </div>
               <div className="min-w-0 border-l border-white/10 pl-2">
-                <span className="text-emerald-200/75 block text-[10px] font-medium leading-none">Chi MB</span>
-                <span className="font-bold text-emerald-100 truncate block mt-1 tabular-nums text-xs">
+                <span className="text-teal-200/75 block text-[10px] font-medium leading-none">Chi MB</span>
+                <span className="font-bold text-teal-100 truncate block mt-1 tabular-nums text-xs">
                   -{formatCurrency(mbExpense)}
                 </span>
               </div>
@@ -155,13 +155,13 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
           </div>
 
           {/* Bottom row: Breakdown & Action */}
-          <div className="relative z-10 mt-3 pt-2.5 border-t border-emerald-500/25 flex items-center justify-between text-xs font-medium gap-2">
-            <span className="text-emerald-200/80 text-[11px] tabular-nums truncate">
+          <div className="relative z-10 mt-3 pt-2.5 border-t border-teal-500/25 flex items-center justify-between text-xs font-medium gap-2">
+            <span className="text-teal-200/80 text-[11px] tabular-nums truncate">
               Đầu kỳ: {formatCurrency(initialMb)}
             </span>
             <span className="font-bold text-white flex items-center gap-1 text-xs whitespace-nowrap shrink-0 group-hover:translate-x-0.5 transition-transform duration-200">
-              <span className="text-[11px] font-semibold underline underline-offset-2 decoration-emerald-400/50">Chi tiết</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-emerald-300" />
+              <span className="text-[11px] font-semibold underline underline-offset-2 decoration-cyan-400/50">Chi tiết</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-cyan-300" />
             </span>
           </div>
         </div>

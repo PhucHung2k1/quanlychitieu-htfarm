@@ -355,7 +355,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                   size="sm"
                   className="h-8 text-xs border-slate-200/90 text-slate-700 hover:text-slate-900 hover:bg-white flex items-center gap-1.5 shadow-2xs font-semibold rounded-xl"
                 >
-                  <Columns3 className="w-3.5 h-3.5 text-[#15803d]" />
+                  <Columns3 className="w-3.5 h-3.5 text-[#0f766e]" />
                   <span>Tùy chỉnh cột</span>
                   <span className="ml-0.5 text-[10px] px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-700 font-bold border border-slate-200">
                     {visibleColumns.length}/{TABLE_COLUMNS.length}
@@ -371,7 +371,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                     <button
                       type="button"
                       onClick={handleSelectAllColumns}
-                      className="text-[#15803d] hover:underline font-semibold whitespace-nowrap transition cursor-pointer"
+                      className="text-[#0f766e] hover:underline font-semibold whitespace-nowrap transition cursor-pointer"
                     >
                       Hiện hết
                     </button>
@@ -412,7 +412,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
             className="h-8 text-xs border-emerald-300/80 bg-emerald-50/90 text-emerald-800 hover:bg-emerald-100 hover:text-emerald-900 flex items-center gap-1.5 shadow-2xs font-bold rounded-xl transition cursor-pointer"
             title="Tải về file Excel Sổ Nhật Ký Thu Chi (Mẫu 06.1/BCTC)"
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-[#15803d]" />
+            <FileSpreadsheet className="w-3.5 h-3.5 text-[#0f766e]" />
             <span>{isExporting ? 'Đang xuất...' : 'Xuất Excel'}</span>
           </Button>
         </div>
@@ -465,7 +465,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
 
               {/* Cột 6: THU TM */}
               {isColVisible('thuTM') && (
-                <TableHead className="py-3 px-3 text-right w-[100px] min-w-[100px] text-[#15803d] font-bold text-xs uppercase tracking-wider">
+                <TableHead className="py-3 px-3 text-right w-[100px] min-w-[100px] text-[#0f766e] font-bold text-xs uppercase tracking-wider">
                   THU TM
                 </TableHead>
               )}
@@ -479,7 +479,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
 
               {/* Cột 8: THU MB */}
               {isColVisible('thuMB') && (
-                <TableHead className="py-3 px-3 text-right w-[100px] min-w-[100px] text-[#15803d] font-bold text-xs uppercase tracking-wider">
+                <TableHead className="py-3 px-3 text-right w-[100px] min-w-[100px] text-[#0f766e] font-bold text-xs uppercase tracking-wider">
                   THU MB
                 </TableHead>
               )}
@@ -574,7 +574,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                       onClick={() => setSelectedDetailTx(tx)}
                     >
                       <div className="flex flex-col group/desc">
-                        <span className="truncate font-semibold text-slate-900 text-xs group-hover/desc:text-[#15803d] transition-colors">
+                        <span className="truncate font-semibold text-slate-900 text-xs group-hover/desc:text-[#0f766e] transition-colors">
                           {tx.description}
                         </span>
                         {tx.projectTag?.name && (
@@ -611,7 +611,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                   {isColVisible('thuTM') && (
                     <TableCell className="py-3 px-3 text-right">
                       {thuTM > 0 ? (
-                        <span className="font-bold text-[#15803d] tabular-nums">
+                        <span className="font-bold text-[#0f766e] tabular-nums">
                           +{formatNumber(thuTM)}
                         </span>
                       ) : (
@@ -637,7 +637,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                   {isColVisible('thuMB') && (
                     <TableCell className="py-3 px-3 text-right">
                       {thuMB > 0 ? (
-                        <span className="font-bold text-[#15803d] tabular-nums">
+                        <span className="font-bold text-[#0f766e] tabular-nums">
                           +{formatNumber(thuMB)}
                         </span>
                       ) : (
@@ -703,7 +703,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                                 <img
                                   src={src}
                                   alt="Chứng từ"
-                                  className="w-9 h-9 rounded-md object-cover border border-slate-200 shadow-xs group-hover:border-[#15803d] group-hover:scale-105 transition-all bg-white"
+                                  className="w-9 h-9 rounded-md object-cover border border-slate-200 shadow-xs group-hover:border-[#0f766e] group-hover:scale-105 transition-all bg-white"
                                 />
                                 {tx.isAiParsed && (
                                   <span
@@ -732,7 +732,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                           size="icon"
                           onClick={() => setSelectedDetailTx(tx)}
                           title="Xem chi tiết hóa đơn & giao dịch"
-                          className="h-7 w-7 text-slate-500 hover:text-[#15803d] hover:bg-emerald-50 transition"
+                          className="h-7 w-7 text-slate-500 hover:text-[#0f766e] hover:bg-emerald-50 transition"
                         >
                           <Eye className="w-3.5 h-3.5" />
                         </Button>
@@ -790,7 +790,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
 
               {/* Cột 6: THU TM */}
               {isColVisible('thuTM') && (
-                <TableCell className="py-3.5 px-3 text-right font-black tabular-nums text-[#15803d]">
+                <TableCell className="py-3.5 px-3 text-right font-black tabular-nums text-[#0f766e]">
                   {pageTotals.thuTM > 0 ? `+${formatNumber(pageTotals.thuTM)}` : '-'}
                 </TableCell>
               )}
@@ -804,7 +804,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
 
               {/* Cột 8: THU MB */}
               {isColVisible('thuMB') && (
-                <TableCell className="py-3.5 px-3 text-right font-black tabular-nums text-[#15803d]">
+                <TableCell className="py-3.5 px-3 text-right font-black tabular-nums text-[#0f766e]">
                   {pageTotals.thuMB > 0 ? `+${formatNumber(pageTotals.thuMB)}` : '-'}
                 </TableCell>
               )}
@@ -848,7 +848,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
           const isIncome = tx.type === 'INCOME';
 
           let channelLabel = 'MB Bank';
-          let channelStyle = 'bg-emerald-50 text-[#15803d] border-emerald-200';
+          let channelStyle = 'bg-emerald-50 text-[#0f766e] border-emerald-200';
           if (tx.paymentMethod === 'CASH') {
             channelLabel = 'Tiền Mặt';
             channelStyle = 'bg-blue-50 text-blue-700 border-blue-200';
@@ -909,7 +909,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                 <div className="text-right shrink-0">
                   <div
                     className={`text-base font-black tabular-nums tracking-tight ${
-                      isIncome ? 'text-[#15803d]' : 'text-rose-700'
+                      isIncome ? 'text-[#0f766e]' : 'text-rose-700'
                     }`}
                   >
                     {isIncome ? `+${formatNumber(amt)} ₫` : `-${formatNumber(amt)} ₫`}
@@ -927,7 +927,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                     <button
                       type="button"
                       onClick={() => onViewBill(tx.billImageUrl!)}
-                      className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-[#15803d] border border-emerald-200 text-[11px] font-bold hover:bg-emerald-100 transition"
+                      className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-emerald-50 text-[#0f766e] border border-emerald-200 text-[11px] font-bold hover:bg-emerald-100 transition"
                       title="Xem ảnh chứng từ"
                     >
                       <img
@@ -952,7 +952,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => setSelectedDetailTx(tx)}
-                    className="h-7 px-2 text-xs text-[#15803d] bg-emerald-50 hover:bg-emerald-100 font-semibold flex items-center gap-1 whitespace-nowrap shrink-0"
+                    className="h-7 px-2 text-xs text-[#0f766e] bg-emerald-50 hover:bg-emerald-100 font-semibold flex items-center gap-1 whitespace-nowrap shrink-0"
                     title="Xem chi tiết hóa đơn"
                   >
                     <Eye className="w-3.5 h-3.5 shrink-0" />
@@ -990,7 +990,7 @@ export const TransactionTable: React.FC<TransactionTableProps> = ({
           <div className="grid grid-cols-2 gap-2 text-xs pt-1">
             <div className="flex items-center justify-between bg-white p-2 rounded-lg border border-slate-200">
               <span className="text-slate-500">Thu:</span>
-              <strong className="text-[#15803d] font-bold tabular-nums">
+              <strong className="text-[#0f766e] font-bold tabular-nums">
                 +{formatNumber(pageTotals.thuTM + pageTotals.thuMB) || 0} ₫
               </strong>
             </div>

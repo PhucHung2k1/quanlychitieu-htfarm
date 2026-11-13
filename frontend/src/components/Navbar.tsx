@@ -19,7 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
           <div>
             <div className="flex items-center space-x-2">
               <span className="font-black text-lg text-slate-900 tracking-tight">HT FARM</span>
-              <span className="bg-emerald-100 text-emerald-900 text-xs px-2.5 py-0.5 rounded-full font-bold">
+              <span className="bg-teal-100 text-teal-900 text-xs px-2.5 py-0.5 rounded-full font-bold">
                 Sổ Thu Chi 06.1/BCTC
               </span>
             </div>
@@ -29,12 +29,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentUser, onLogout }) => {
 
         {currentUser && (
           <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2 bg-[#f0fdf4] border border-emerald-200/80 px-3.5 py-1.5 rounded-xl text-sm text-slate-800 shadow-xs">
-              <div className="w-6 h-6 rounded-full bg-[#058a50]/15 flex items-center justify-center text-[#058a50]">
+            <div className="flex items-center space-x-2 bg-teal-50/70 border border-teal-200/80 px-3.5 py-1.5 rounded-xl text-sm text-slate-800 shadow-xs">
+              <div className="w-6 h-6 rounded-full bg-teal-600/15 flex items-center justify-center text-teal-700">
                 <UserCircle className="w-4 h-4 stroke-[2.2]" />
               </div>
               <span className="font-extrabold text-slate-900 text-xs">{currentUser.fullName}</span>
-              <span className="text-[11px] text-emerald-700 font-semibold">({currentUser.username})</span>
+              <span className="text-[11px] text-teal-700 font-semibold">({currentUser.username})</span>
             </div>
             <button
               onClick={onLogout}
